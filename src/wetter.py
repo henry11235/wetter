@@ -6,4 +6,3 @@ root.geometry("400x300")
 
 # Wichtig: Diese Zeile muss am Ende stehen
 root.mainloop()
-
