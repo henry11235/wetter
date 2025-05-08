@@ -11,4 +11,3 @@ graphische darstellug um wetterdaten abzurufen
   poetry shell
   pytest
   ```
-  ```
