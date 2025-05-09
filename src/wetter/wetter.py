@@ -57,13 +57,14 @@ def main():
     root = tk.Tk()
     root.title("Wetter App")
     root.geometry("400x300")
+    root.configure(bg="#f0f8ff")
     root.update_idletasks()
     root.geometry("400x300")
 
-    ergebnis_label = tk.Label(root, text="Lade Wetterdaten...", font=("Arial", 12), justify="left")
+    ergebnis_label = tk.Label(root, text="Lade Wetterdaten...", font=("Arial", 14), justify="left", bg="#f0f8ff", fg="blue", padx=20, pady=10)
     ergebnis_label.pack(pady=20)
 
-    aktualisieren_button = tk.Button(root, text="Aktualisieren", command=aktuelles_wetter_anzeigen)
+    aktualisieren_button = tk.Button(root, text="Aktualisieren", command=aktuelles_wetter_anzeigen, font=("Arial", 12), bg="#4CAF50", fg="black", padx=10, pady=5)
     aktualisieren_button.pack(pady=10)
 
     aktuelles_wetter_anzeigen()
