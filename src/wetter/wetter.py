@@ -1,7 +1,8 @@
 import tkinter as tk
 import requests
 import datetime 
-from PIL import Image, ImageTk 
+from PIL import Image, ImageTk
+import os 
 
 def wetter_symbol(code):
     if code == 0:
@@ -18,6 +19,30 @@ def wetter_symbol(code):
         return "🌩️ Gewitter"
     else:
         return "🌡️ Unbekannt"
+
+def set_background_image(weather_code, root, canvas):
+    if weather_code == 0:
+        image_path = "sonnig.jpg"
+    elif weather_code in [1, 2, 3]:
+        image_path = "bewoelkt.jpg"
+    elif weather_code in [45, 48]:
+        image_path = "nebel.jpg"
+    elif weather_code in [51, 53, 55, 61, 63, 65, 80, 81, 82]:
+        image_path = "regen.jpg"
+    elif weather_code in [71, 73, 75, 85, 86]:
+        image_path = "schnee.jpg"
+    elif weather_code in [95, 96, 99]:
+        image_path = "gewitter.jpg"
+    else:
+        print("Bild nicht gefunden")  
+        return 
+
+    bg_image_raw = Image.open("src/wetter/" + image_path)
+    bg_image_raw = bg_image_raw.resize((600, 400), Image.Resampling.LANCZOS)
+    bg_image = ImageTk.PhotoImage(bg_image_raw)
+    
+    canvas.create_image(0, 0, image=bg_image, anchor="nw")
+    root.bg_image = bg_image  
 
 def aktuelles_wetter_anzeigen():
     url = ("https://api.open-meteo.com/v1/forecast"
@@ -45,24 +70,25 @@ def aktuelles_wetter_anzeigen():
         text += f"\nZuletzt aktualisiert: {zeitstempel}"
 
         ergebnis_label.config(text=text)
-        
+        set_background_image(wettercode, root, canvas)
+
     except Exception as e:
-        ergebnis_label.config(text=f"Fehler beim Abruf der Wetterdaten: {e}")    
+        ergebnis_label.config(text=f"Fehler beim Abruf der Wetterdaten: {e}")
 
 def main():
-    global ergebnis_label
+    global ergebnis_label, root, canvas
 
     root = tk.Tk()
     root.title("Wetter App")
     root.geometry("600x400")
-    
-    bg_image_raw = Image.open("src/wetter/clouds.jpg")
-    bg_image_raw = bg_image_raw.resize((600, 400), Image.Resampling.LANCZOS)
-    bg_image = ImageTk.PhotoImage(bg_image_raw)
 
     canvas = tk.Canvas(root, width=600, height=400)
     canvas.pack(fill="both", expand=True)
-    canvas.create_image(0, 0, image=bg_image, anchor="nw")
+    
+    #bg_image_raw = bg_image_raw.resize((600, 400), Image.Resampling.LANCZOS)
+    #bg_image = ImageTk.PhotoImage(bg_image_raw)
+    #canvas.create_image(0, 0, image=bg_image, anchor="nw")
+    #root.bg_image = bg_image
 
     titel_label = tk.Label(root, text="Wetter App", font=("Arial", 24, "bold"), bg="#e0f7fa", fg="#00796b")
     canvas.create_window(300, 40, window=titel_label)
@@ -70,12 +96,9 @@ def main():
     ergebnis_label = tk.Label(root, text="Lade Wetterdaten...", font=("Arial", 16), bg="#e0f7fa", fg="#004d40")
     canvas.create_window(300, 150, window=ergebnis_label)
 
- 
     aktualisieren_button = tk.Button(root, text="Aktualisieren", command=aktuelles_wetter_anzeigen,
                                      font=("Arial", 14), bg="#004d40", fg="black", activebackground="grey")
     canvas.create_window(300, 300, window=aktualisieren_button)
-
-    root.bg_image = bg_image
 
     aktuelles_wetter_anzeigen()
     root.mainloop()
