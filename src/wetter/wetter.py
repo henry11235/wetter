@@ -84,11 +84,6 @@ def main():
 
     canvas = tk.Canvas(root, width=600, height=400)
     canvas.pack(fill="both", expand=True)
-    
-    #bg_image_raw = bg_image_raw.resize((600, 400), Image.Resampling.LANCZOS)
-    #bg_image = ImageTk.PhotoImage(bg_image_raw)
-    #canvas.create_image(0, 0, image=bg_image, anchor="nw")
-    #root.bg_image = bg_image
 
     titel_label = tk.Label(root, text="Wetter App", font=("Arial", 24, "bold"), bg="#e0f7fa", fg="#00796b")
     canvas.create_window(300, 40, window=titel_label)
