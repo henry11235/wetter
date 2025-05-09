@@ -17,13 +17,15 @@ def wetter_symbol(code):
         return "🌩️ Gewitter"
     else:
         return "🌡️ Unbekannt"
+
 def aktuelles_wetter_anzeigen():
-    url = ( "https://api.open-meteo.com/v1/forecast"
+    url = ("https://api.open-meteo.com/v1/forecast"
         "?latitude=51.05&longitude=13.74"
         "&current_weather=true"
         "&timezone=Europe%2FBerlin")
     try:
         response = requests.get(url)
+        response.raise_for_status()
         daten = response.json()
 
         wetter = daten["current_weather"]
@@ -33,27 +35,32 @@ def aktuelles_wetter_anzeigen():
         wettercode = wetter["weathercode"]
         symbol = wetter_symbol(wettercode)
 
-        text = (  f"Aktuelles Wetter in Dresden ({zeit}):\n"
+        text =  (f"Aktuelles Wetter in Dresden ({zeit}):\n"
+            f"{symbol}\n"
             f"Temperatur: {temperatur}°C\n"
             f"Wind: {wind} km/h")
         
         zeitstempel = datetime.datetime.now().strftime("%d.%m.%Y – %H:%M:%S")
         text += f"\nZuletzt aktualisiert: {zeitstempel}"
-        
-        ergebnis_label.config(text=text)
-    except:
-        ergebnis_label.config(text="Fehler beim Abruf der Wetterdaten")
-    ergebnis_label.after(600000, aktuelles_wetter_anzeigen)    
 
+        ergebnis_label.config(text=text)
+        
+    except requests.exceptions.RequestException as e:
+        ergebnis_label.config(text=f"Fehler beim Abruf der Wetterdaten: {e}")
+    except KeyError:
+        ergebnis_label.config(text="Fehler beim Verarbeiten der Wetterdaten")
+    except Exception as e:
+        ergebnis_label.config(text=f"Ein unerwarteter Fehler ist aufgetreten: {e}")    
+    
 def main():
     global ergebnis_label
     root = tk.Tk()
     root.title("Wetter App")
     root.geometry("400x300")
-    root.update_idletasks()  
-    root.geometry("400x300")  
+    root.update_idletasks()
+    root.geometry("400x300")
 
-    ergebnis_label = tk.Label(root, text="Klicken Sie auf 'Aktualisieren'")
+    ergebnis_label = tk.Label(root, text="Lade Wetterdaten...", font=("Arial", 12), justify="left")
     ergebnis_label.pack(pady=20)
 
     aktualisieren_button = tk.Button(root, text="Aktualisieren", command=aktuelles_wetter_anzeigen)
