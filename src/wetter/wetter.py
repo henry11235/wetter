@@ -22,12 +22,22 @@ def aktuelles_wetter_anzeigen():
         ergebnis_label.config(text=text)
     except:
         ergebnis_label.config(text="Fehler beim Abruf der Wetterdaten")
-        
-root = tk.Tk()
-root.title("Wetter App")
-root.geometry("400x300")
-root.update_idletasks()  
-root.geometry("400x300")  
+
+def main():
+    global ergebnis_label
+    root = tk.Tk()
+    root.title("Wetter App")
+    root.geometry("400x300")
+    root.update_idletasks()  
+    root.geometry("400x300")  
+
+    ergebnis_label = tk.Label(root, text="Klicken Sie auf 'Aktualisieren'")
+    ergebnis_label.pack(pady=20)
+
+    aktualisieren_button = tk.Button(root, text="Aktualisieren", command=aktuelles_wetter_anzeigen)
+    aktualisieren_button.pack(pady=10)
+
+    root.mainloop()
 
 if __name__ == "__main__":
-    root.mainloop()
+    main()
