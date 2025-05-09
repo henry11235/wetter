@@ -56,10 +56,10 @@ def main():
     global ergebnis_label
     root = tk.Tk()
     root.title("Wetter App")
-    root.geometry("400x300")
+    root.geometry("600x400")
     root.configure(bg="#f0f8ff")
     root.update_idletasks()
-    root.geometry("400x300")
+    root.geometry("600x400")
 
     ergebnis_label = tk.Label(root, text="Lade Wetterdaten...", font=("Arial", 14), justify="left", bg="#f0f8ff", fg="blue", padx=20, pady=10)
     ergebnis_label.pack(pady=20)
