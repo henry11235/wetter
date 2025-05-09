@@ -36,6 +36,7 @@ def main():
 
     aktualisieren_button = tk.Button(root, text="Aktualisieren", command=aktuelles_wetter_anzeigen)
     aktualisieren_button.pack(pady=10)
+    aktuelles_wetter_anzeigen()
 
     root.mainloop()
 
