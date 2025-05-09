@@ -1,5 +1,6 @@
 import tkinter as tk
 import requests
+import datetime 
 
 def aktuelles_wetter_anzeigen():
     url = ( "https://api.open-meteo.com/v1/forecast"
@@ -19,9 +20,13 @@ def aktuelles_wetter_anzeigen():
             f"Temperatur: {temperatur}°C\n"
             f"Wind: {wind} km/h")
         
+        zeitstempel = datetime.datetime.now().strftime("%d.%m.%Y – %H:%M:%S")
+        text += f"\nZuletzt aktualisiert: {zeitstempel}"
+        
         ergebnis_label.config(text=text)
     except:
         ergebnis_label.config(text="Fehler beim Abruf der Wetterdaten")
+    ergebnis_label.after(600000, aktuelles_wetter_anzeigen)    
 
 def main():
     global ergebnis_label
