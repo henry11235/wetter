@@ -1,6 +1,7 @@
 import tkinter as tk
 import requests
 import datetime 
+from PIL import Image, ImageTk 
 
 def wetter_symbol(code):
     if code == 0:
@@ -45,32 +46,38 @@ def aktuelles_wetter_anzeigen():
 
         ergebnis_label.config(text=text)
         
-    except requests.exceptions.RequestException as e:
-        ergebnis_label.config(text=f"Fehler beim Abruf der Wetterdaten: {e}")
-    except KeyError:
-        ergebnis_label.config(text="Fehler beim Verarbeiten der Wetterdaten")
     except Exception as e:
-        ergebnis_label.config(text=f"Ein unerwarteter Fehler ist aufgetreten: {e}")    
-    
+        ergebnis_label.config(text=f"Fehler beim Abruf der Wetterdaten: {e}")    
+
 def main():
     global ergebnis_label
+
     root = tk.Tk()
     root.title("Wetter App")
     root.geometry("600x400")
-    root.configure(bg="#f0f8ff")
-    root.update_idletasks()
-    root.geometry("600x400")
     
-    titel_label = tk.Label(root, text="Wetter App", font=("Arial", 24, "bold"), bg="#e0f7fa", fg="#00796b")
-    titel_label.pack(pady=20)
-    ergebnis_label = tk.Label(root, text="Lade Wetterdaten...", font=("Arial", 16), justify="left", bg="#e0f7fa", fg="#004d40", padx=20, pady=10)
-    ergebnis_label.pack(pady=20)
+    bg_image_raw = Image.open("src/wetter/clouds.jpg")
+    bg_image_raw = bg_image_raw.resize((600, 400), Image.Resampling.LANCZOS)
+    bg_image = ImageTk.PhotoImage(bg_image_raw)
 
-    aktualisieren_button = tk.Button(root, text="Aktualisieren", command=aktuelles_wetter_anzeigen, font=("Arial", 14), bg="#004d40", fg="grey", padx=20, pady=10, activebackground="grey")
-    aktualisieren_button.pack(pady=10)
+    canvas = tk.Canvas(root, width=600, height=400)
+    canvas.pack(fill="both", expand=True)
+    canvas.create_image(0, 0, image=bg_image, anchor="nw")
+
+    titel_label = tk.Label(root, text="Wetter App", font=("Arial", 24, "bold"), bg="#e0f7fa", fg="#00796b")
+    canvas.create_window(300, 40, window=titel_label)
+    
+    ergebnis_label = tk.Label(root, text="Lade Wetterdaten...", font=("Arial", 16), bg="#e0f7fa", fg="#004d40")
+    canvas.create_window(300, 150, window=ergebnis_label)
+
+ 
+    aktualisieren_button = tk.Button(root, text="Aktualisieren", command=aktuelles_wetter_anzeigen,
+                                     font=("Arial", 14), bg="#004d40", fg="black", activebackground="grey")
+    canvas.create_window(300, 300, window=aktualisieren_button)
+
+    root.bg_image = bg_image
 
     aktuelles_wetter_anzeigen()
-
     root.mainloop()
 
 if __name__ == "__main__":
