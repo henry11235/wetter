@@ -77,7 +77,7 @@ def aktuelles_wetter_anzeigen(lat, lon, ort_name):
         wettercode = wetter["weathercode"]
         symbol = wetter_symbol(wettercode)
 
-        text =  (f"Aktuelles Wetter in Dresden ({zeit}):\n"
+        text =  (f"Aktuelles Wetter in {ort_name} ({zeit}):\n"
             f"{symbol}\n"
             f"Temperatur: {temperatur}°C\n"
             f"Wind: {wind} km/h")
