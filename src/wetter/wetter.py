@@ -6,19 +6,19 @@ import os
 
 def wetter_symbol(code):
     if code == 0:
-        return "☀️ Klar"
+        return "sonne.png"
     elif code in [1, 2, 3]:
-        return "🌤️ Teilweise bewölkt"
+        return "bewoelkt.png"
     elif code in [45, 48]:
-        return "🌫️ Nebel"
+        return "nebel.png"
     elif code in [51, 53, 55, 61, 63, 65, 80, 81, 82]:
-        return "🌧️ Regen"
+        return "regen.png"
     elif code in [71, 73, 75, 85, 86]:
-        return "❄️ Schnee"
+        return "schnee.png"
     elif code in [95, 96, 99]:
-        return "🌩️ Gewitter"
+        return "gewitter.png"
     else:
-        return "🌡️ Unbekannt"
+        return "Unbekannt"
 
 def set_background_image(weather_code, root, canvas):
     if weather_code == 0:
@@ -44,6 +44,16 @@ def set_background_image(weather_code, root, canvas):
     canvas.create_image(0, 0, image=bg_image, anchor="nw")
     root.bg_image = bg_image 
     
+    icon_path = wetter_symbol(weather_code)
+    icon_image = Image.open(f"src/wetter/" + icon_path)
+    icon_image = icon_image.resize((50, 50), Image.Resampling.LANCZOS)  
+    icon_photo = ImageTk.PhotoImage(icon_image)
+    
+    canvas.create_image(300, 100, image=icon_photo)  
+    canvas.icon = icon_photo
+    root.icon_photo = icon_photo  
+
+      
 def ort_zu_koordinaten(ort):
     
     url = f"https://nominatim.openstreetmap.org/search?q={ort}&format=json&limit=1"
@@ -138,14 +148,11 @@ def main():
     root.title("Wetter App")
     root.geometry("600x400")
 
-    # Canvas mit Bild-Hintergrund
     canvas = ctk.CTkCanvas(root, width=600, height=400, highlightthickness=0)
     canvas.place(x=0, y=0)
 
-    # Halbtransparentes Rechteck im Canvas (dunkler Overlay-Effekt)
     canvas.create_rectangle(0, 0, 600, 400, fill="#000000", stipple="gray50", outline="")
 
-    # Content-Frame darüber (transparent)
     content_frame = ctk.CTkFrame(master=root, width=500, height=350, fg_color="transparent")
     content_frame.place(relx=0.5, rely=0.5, anchor="center")
 
