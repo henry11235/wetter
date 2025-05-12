@@ -132,7 +132,7 @@ def ort_suchen():
 
     
 def hover_on(event):
-    event.widget.config(bg="#blue") 
+    event.widget.config(bg="#004d40") 
 
 def hover_off(event):
     event.widget.config(bg="#00796b")        
@@ -148,29 +148,22 @@ def main():
     canvas = tk.Canvas(root, width=600, height=400)
     canvas.pack(fill="both", expand=True)
 
-    
-    titel_label = tk.Label(root, text="Wetter App", font=("Helvetica", 24, "bold"), bg="#4CAF50", fg="white")
-    canvas.create_window(300, 40, window=titel_label)
-
-    
+   
     ort_eingabe = tk.Entry(root, font=("Helvetica", 14), bg="#e8f5e9", fg="#004d40", relief="solid", bd=2)
     ort_eingabe.insert(0, "Dresden")
-    canvas.create_window(300, 80, window=ort_eingabe)
-
+    canvas.create_window(300, 60, window=ort_eingabe)
     
     canvas.create_rectangle(100, 100, 500, 180, fill="#ffffff", stipple="gray25", outline="", width=0)
-
     
-    ergebnis_label = tk.Label(root, text="Lade Wetterdaten...", font=("Helvetica", 16, "bold"),
-                              bg="#ffffff", fg="#003333", bd=0)
+    ergebnis_label = tk.Label(
+    root, text="Lade Wetterdaten...", font=("Helvetica", 16, "bold"), bg="#ffffff", bd=0)
     canvas.create_window(300, 130, window=ergebnis_label)
 
     
     canvas.create_rectangle(100, 190, 500, 260, fill="#ffffff", stipple="gray25", outline="", width=0)
 
-    
     vorhersage_label = tk.Label(root, text="", font=("Helvetica", 14),
-                                bg="#ffffff", fg="#003333", bd=0)
+                                bg="#ffffff", fg="#333333", bd=0)
     canvas.create_window(300, 225, window=vorhersage_label)
 
     def hover_on(event):
