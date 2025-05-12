@@ -15,5 +15,5 @@ graphische darstellug um wetterdaten abzurufen
 - das lokale Wetter für Dresden wird angezeigt
 - ein passendes Icon für das Wetter wird angezeigt
 - hübsches Design (wird im Laufe der Umsetzung festgelegt)
-## Ziele für später
 - drei Tage Wettervorhersage werden angezeigt
+## Ziele für später
