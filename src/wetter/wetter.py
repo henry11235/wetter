@@ -139,7 +139,6 @@ def hover_off(event):
              
         
 def main():
-            
     global ergebnis_label, root, canvas, vorhersage_label, ort_eingabe
 
     root = tk.Tk()
@@ -149,30 +148,43 @@ def main():
     canvas = tk.Canvas(root, width=600, height=400)
     canvas.pack(fill="both", expand=True)
 
+    
     titel_label = tk.Label(root, text="Wetter App", font=("Helvetica", 24, "bold"), bg="#4CAF50", fg="white")
     canvas.create_window(300, 40, window=titel_label)
+
     
-    ort_eingabe = tk.Entry(root, font=("Helvetica", 14), bg="#e8f5e9", fg="#004d40", relief="solid", bd=2)  
-    ort_eingabe.insert(0, "Dresden")  
+    ort_eingabe = tk.Entry(root, font=("Helvetica", 14), bg="#e8f5e9", fg="#004d40", relief="solid", bd=2)
+    ort_eingabe.insert(0, "Dresden")
     canvas.create_window(300, 80, window=ort_eingabe)
 
-    canvas.create_rectangle(100, 100, 500, 180, fill="#ffffff", stipple="gray25", outline="")
-    ergebnis_label = tk.Label(root, text="Lade Wetterdaten...", font=("Helvetica", 16), bg="#ffffff", fg="#004d40")
-    canvas.create_window(300, 140, window=ergebnis_label)
     
-    global vorhersage_label
-    vorhersage_label = tk.Label(root, text="", font=("Helvetica", 14), bg="#ffffff", fg="#004d40")
-    canvas.create_window(300, 250, window=vorhersage_label)
+    canvas.create_rectangle(100, 100, 500, 180, fill="#ffffff", stipple="gray25", outline="", width=0)
+
     
+    ergebnis_label = tk.Label(root, text="Lade Wetterdaten...", font=("Helvetica", 16, "bold"),
+                              bg="#ffffff", fg="#003333", bd=0)
+    canvas.create_window(300, 130, window=ergebnis_label)
+
     
-    aktualisieren_button = tk.Button(root, text="Ort suchen", command=ort_suchen, font=("Helvetica", 14), bg="#00796b", fg="white", activebackground="#004d40", relief="flat", bd=0, padx=20, pady=10)
+    canvas.create_rectangle(100, 190, 500, 260, fill="#ffffff", stipple="gray25", outline="", width=0)
+
+    
+    vorhersage_label = tk.Label(root, text="", font=("Helvetica", 14),
+                                bg="#ffffff", fg="#003333", bd=0)
+    canvas.create_window(300, 225, window=vorhersage_label)
+
+    def hover_on(event):
+        aktualisieren_button.config(bg="#004d40")
+
+    def hover_off(event):
+        aktualisieren_button.config(bg="#00796b")
+
+    aktualisieren_button = tk.Button(root, text="Ort suchen", command=ort_suchen, font=("Helvetica", 14), bg="#00796b", fg="white",activebackground="#004d40", relief="flat", bd=0, padx=20, pady=10)
     aktualisieren_button.bind("<Enter>", hover_on)
     aktualisieren_button.bind("<Leave>", hover_off)
-    canvas.create_window(300, 320, window=aktualisieren_button)
-
+    canvas.create_window(300, 300, window=aktualisieren_button)
 
     ort_suchen()
     root.mainloop()
-
 if __name__ == "__main__":
-    main()
+  main()
