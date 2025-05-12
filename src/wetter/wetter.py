@@ -42,11 +42,27 @@ def set_background_image(weather_code, root, canvas):
     bg_image = ImageTk.PhotoImage(bg_image_raw)
     
     canvas.create_image(0, 0, image=bg_image, anchor="nw")
-    root.bg_image = bg_image  
+    root.bg_image = bg_image 
+    
+def ort_zu_koordinaten(ort):
+    
+    url = f"https://nominatim.openstreetmap.org/search?q={ort}&format=json&limit=1"
+    try:
+        response = requests.get(url, headers={"User-Agent": "wetter-app"})
+        daten = response.json()
+        if daten:
+            lat = float(daten[0]["lat"])
+            lon = float(daten[0]["lon"])
+            name = daten[0]["display_name"].split(",")[0]  
+            return lat, lon, name
+        else:
+            raise ValueError("Ort nicht gefunden")
+    except Exception as e:
+        raise e     
 
-def aktuelles_wetter_anzeigen():
-    url = ("https://api.open-meteo.com/v1/forecast"
-        "?latitude=51.05&longitude=13.74"
+def aktuelles_wetter_anzeigen(lat, lon, ort_name):
+    url = (f"https://api.open-meteo.com/v1/forecast"
+        f"?latitude={lat}&longitude={lon}"
         "&current_weather=true"
         "&timezone=Europe%2FBerlin")
     try:
@@ -75,13 +91,11 @@ def aktuelles_wetter_anzeigen():
     except Exception as e:
         ergebnis_label.config(text=f"Fehler beim Abruf der Wetterdaten: {e}")
         
-def wetter_vorhersage_anzeigen():
-    url = (
-        "https://api.open-meteo.com/v1/forecast"
-        "?latitude=51.05&longitude=13.74"
+def wetter_vorhersage_anzeigen(lat, lon):
+    url = (f"https://api.open-meteo.com/v1/forecast"
+        f"?latitude={lat}&longitude={lon}"
         "&daily=temperature_2m_max,temperature_2m_min,weathercode"
-        "&timezone=Europe%2FBerlin"
-    )
+        "&timezone=Europe%2FBerlin")
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -93,7 +107,7 @@ def wetter_vorhersage_anzeigen():
         codes = daten["daily"]["weathercode"]
 
         vorhersage_text = "3-Tage-Vorhersage:\n"
-        for i in range(3):  # Heute + 2 Tage
+        for i in range(3):  
             datum = datetime.datetime.strptime(tage[i], "%Y-%m-%d").strftime("%A, %d.%m.")
             symbol = wetter_symbol(codes[i])
             vorhersage_text += f"{datum}: {symbol} {min_temp[i]}–{max_temp[i]}°C\n"
@@ -102,10 +116,24 @@ def wetter_vorhersage_anzeigen():
 
     except Exception as e:
         vorhersage_label.config(text=f"Fehler bei der Vorhersage: {e}")
+        
+def ort_suchen():
+   
+    ort = ort_eingabe.get()
+    if not ort:
+        ergebnis_label.config(text="Bitte einen Ort eingeben.")
+        return
+    try:
+        lat, lon, ort_name = ort_zu_koordinaten(ort)
+        aktuelles_wetter_anzeigen(lat, lon, ort_name)
+        wetter_vorhersage_anzeigen(lat, lon)
+    except Exception as e:
+        ergebnis_label.config(text=f"Fehler bei der Ortssuche: {e}")
+        
              
         
 def main():
-    global ergebnis_label, root, canvas, vorhersage_label
+    global ergebnis_label, root, canvas, vorhersage_label, ort_eingabe
 
     root = tk.Tk()
     root.title("Wetter App")
@@ -117,20 +145,27 @@ def main():
     titel_label = tk.Label(root, text="Wetter App", font=("Arial", 24, "bold"), bg="#e0f7fa", fg="#00796b")
     canvas.create_window(300, 40, window=titel_label)
     
+    ort_eingabe = tk.Entry(root, font=("Arial", 14))  
+    ort_eingabe.insert(0, "Dresden")  
+    canvas.create_window(300, 80, window=ort_eingabe)
+
+    
     ergebnis_label = tk.Label(root, text="Lade Wetterdaten...", font=("Arial", 16), bg="#e0f7fa", fg="#004d40")
     canvas.create_window(300, 150, window=ergebnis_label)
     
     global vorhersage_label
     vorhersage_label = tk.Label(root, text="", font=("Arial", 14), bg="#e0f7fa", fg="#004d40")
     canvas.create_window(300, 220, window=vorhersage_label)
-
-
-    aktualisieren_button = tk.Button(root, text="Aktualisieren", command=lambda: [aktuelles_wetter_anzeigen(), wetter_vorhersage_anzeigen()],
-                                     font=("Arial", 14), bg="#004d40", fg="black", activebackground="grey")
+    
+    
+    aktualisieren_button = tk.Button(
+    root, text="Ort suchen", command=ort_suchen,
+    font=("Arial", 14), bg="#004d40", fg="black", activebackground="grey"
+    )
     canvas.create_window(300, 300, window=aktualisieren_button)
 
-    aktuelles_wetter_anzeigen()
-    wetter_vorhersage_anzeigen()
+
+    ort_suchen()
     root.mainloop()
 
 if __name__ == "__main__":
