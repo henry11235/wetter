@@ -16,4 +16,6 @@ graphische darstellug um wetterdaten abzurufen
 - ein passendes Icon für das Wetter wird angezeigt
 - hübsches Design (wird im Laufe der Umsetzung festgelegt)
 - drei Tage Wettervorhersage werden angezeigt
+- Wetter für verschiedene Orte 
 ## Ziele für später
+
