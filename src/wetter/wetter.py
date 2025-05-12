@@ -61,13 +61,23 @@ def set_background_image(weather_code, root, canvas):
     root.bg_image = bg_image 
     
     icon_path = wetter_symbol(weather_code)
-    icon_image = Image.open(f"src/wetter/" + icon_path)
-    icon_image = icon_image.resize((50, 50), Image.Resampling.LANCZOS)  
-    icon_photo = ImageTk.PhotoImage(icon_image)
-    
-    canvas.create_image(300, 100, image=icon_photo)  
-    canvas.icon = icon_photo
-    root.icon_photo = icon_photo  
+    if icon_path != "Unbekannt":
+        icon_image = Image.open(f"src/wetter/{icon_path}")
+        icon_image = icon_image.resize((50, 50), Image.Resampling.LANCZOS)
+        icon_photo = ImageTk.PhotoImage(icon_image)
+
+        # Bild zeichnen
+        if hasattr(root, "icon_image_id"):
+            canvas.itemconfig(root.icon_image_id, image=icon_photo)
+        else:
+            root.icon_image_id = canvas.create_image(300, 100, image=icon_photo)
+
+        # Referenz sicher speichern (Liste!)
+        if not hasattr(root, "images"):
+            root.images = []
+        root.images.append(icon_photo)
+
+ 
 
       
 def ort_zu_koordinaten(ort):
