@@ -19,4 +19,6 @@ graphische darstellug um wetterdaten abzurufen
 - Wetter für verschiedene Orte 
 ## Ziele für später
 - modernes Design 
+- runde ecken
+- gleiche darstellung bei max. bildschirm
 
