@@ -1,4 +1,4 @@
-import tkinter as tk
+import customtkinter as ctk
 import requests
 import datetime 
 from PIL import Image, ImageTk
@@ -85,11 +85,11 @@ def aktuelles_wetter_anzeigen(lat, lon, ort_name):
         zeitstempel = datetime.datetime.now().strftime("%d.%m.%Y – %H:%M:%S")
         text += f"\nZuletzt aktualisiert: {zeitstempel}"
 
-        ergebnis_label.config(text=text)
+        ergebnis_label.configure(text=text)
         set_background_image(wettercode, root, canvas)
 
     except Exception as e:
-        ergebnis_label.config(text=f"Fehler beim Abruf der Wetterdaten: {e}")
+        ergebnis_label.configure(text=f"Fehler beim Abruf der Wetterdaten: {e}")
         
 def wetter_vorhersage_anzeigen(lat, lon):
     url = (f"https://api.open-meteo.com/v1/forecast"
@@ -112,72 +112,60 @@ def wetter_vorhersage_anzeigen(lat, lon):
             symbol = wetter_symbol(codes[i])
             vorhersage_text += f"{datum}: {symbol} {min_temp[i]}–{max_temp[i]}°C\n"
 
-        vorhersage_label.config(text=vorhersage_text)
+        vorhersage_label.configure(text=vorhersage_text)
 
     except Exception as e:
-        vorhersage_label.config(text=f"Fehler bei der Vorhersage: {e}")
+        vorhersage_label.configure(text=f"Fehler bei der Vorhersage: {e}")
         
 def ort_suchen():
    
     ort = ort_eingabe.get()
     if not ort:
-        ergebnis_label.config(text="Bitte einen Ort eingeben.")
+        ergebnis_label.configure(text="Bitte einen Ort eingeben.")
         return
     try:
         lat, lon, ort_name = ort_zu_koordinaten(ort)
         aktuelles_wetter_anzeigen(lat, lon, ort_name)
         wetter_vorhersage_anzeigen(lat, lon)
     except Exception as e:
-        ergebnis_label.config(text=f"Fehler bei der Ortssuche: {e}")
-
-    
-def hover_on(event):
-    event.widget.config(bg="#004d40") 
-
-def hover_off(event):
-    event.widget.config(bg="#00796b")        
+        ergebnis_label.configure(text=f"Fehler bei der Ortssuche: {e}")      
              
         
 def main():
-    global ergebnis_label, root, canvas, vorhersage_label, ort_eingabe
+    global root, ort_eingabe, ergebnis_label, vorhersage_label, background_label, canvas
 
-    root = tk.Tk()
+    root = ctk.CTk()
     root.title("Wetter App")
     root.geometry("600x400")
 
-    canvas = tk.Canvas(root, width=600, height=400)
-    canvas.pack(fill="both", expand=True)
+    # Canvas mit Bild-Hintergrund
+    canvas = ctk.CTkCanvas(root, width=600, height=400, highlightthickness=0)
+    canvas.place(x=0, y=0)
 
-   
-    ort_eingabe = tk.Entry(root, font=("Helvetica", 14), bg="#e8f5e9", fg="#004d40", relief="solid", bd=2)
+    # Halbtransparentes Rechteck im Canvas (dunkler Overlay-Effekt)
+    canvas.create_rectangle(0, 0, 600, 400, fill="#000000", stipple="gray50", outline="")
+
+    # Content-Frame darüber (transparent)
+    content_frame = ctk.CTkFrame(master=root, width=500, height=350, fg_color="transparent")
+    content_frame.place(relx=0.5, rely=0.5, anchor="center")
+
+    ort_eingabe = ctk.CTkEntry(content_frame, width=300, placeholder_text="Ort eingeben")
+    ort_eingabe.pack(pady=(20, 10))
     ort_eingabe.insert(0, "Dresden")
-    canvas.create_window(300, 60, window=ort_eingabe)
-    
-    canvas.create_rectangle(100, 100, 500, 180, fill="#ffffff", stipple="gray25", outline="", width=0)
-    
-    ergebnis_label = tk.Label(
-    root, text="Lade Wetterdaten...", font=("Helvetica", 16, "bold"), bg="#ffffff", bd=0)
-    canvas.create_window(300, 130, window=ergebnis_label)
 
-    
-    canvas.create_rectangle(100, 190, 500, 260, fill="#ffffff", stipple="gray25", outline="", width=0)
+    suchen_button = ctk.CTkButton(content_frame, text="Ort suchen", command=ort_suchen)
+    suchen_button.pack(pady=10)
 
-    vorhersage_label = tk.Label(root, text="", font=("Helvetica", 14),
-                                bg="#ffffff", fg="#333333", bd=0)
-    canvas.create_window(300, 225, window=vorhersage_label)
+    ergebnis_label = ctk.CTkLabel(content_frame, text="", justify="left", wraplength=450)
+    ergebnis_label.pack(pady=10)
 
-    def hover_on(event):
-        aktualisieren_button.config(bg="#004d40")
-
-    def hover_off(event):
-        aktualisieren_button.config(bg="#00796b")
-
-    aktualisieren_button = tk.Button(root, text="Ort suchen", command=ort_suchen, font=("Helvetica", 14), bg="#00796b", fg="white",activebackground="#004d40", relief="flat", bd=0, padx=20, pady=10)
-    aktualisieren_button.bind("<Enter>", hover_on)
-    aktualisieren_button.bind("<Leave>", hover_off)
-    canvas.create_window(300, 300, window=aktualisieren_button)
+    vorhersage_label = ctk.CTkLabel(content_frame, text="", justify="left", wraplength=450)
+    vorhersage_label.pack(pady=10)
 
     ort_suchen()
     root.mainloop()
+
+
 if __name__ == "__main__":
-  main()
+    main()
+
