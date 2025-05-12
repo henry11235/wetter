@@ -19,6 +19,22 @@ def wetter_symbol(code):
         return "gewitter.png"
     else:
         return "Unbekannt"
+    
+def wetter_beschreibung(code):
+    if code == 0:
+        return "Sonnig"
+    elif code in [1, 2, 3]:
+        return "Wolkig"
+    elif code in [45, 48]:
+        return "Nebel"
+    elif code in [51, 53, 55, 61, 63, 65, 80, 81, 82]:
+        return "Regen"
+    elif code in [71, 73, 75, 85, 86]:
+        return "Schnee"
+    elif code in [95, 96, 99]:
+        return "Gewitter"
+    else:
+        return "Unbekannt"    
 
 def set_background_image(weather_code, root, canvas):
     if weather_code == 0:
@@ -85,7 +101,7 @@ def aktuelles_wetter_anzeigen(lat, lon, ort_name):
         wind = wetter["windspeed"]
         zeit = wetter["time"]
         wettercode = wetter["weathercode"]
-        symbol = wetter_symbol(wettercode)
+        symbol = wetter_beschreibung(wettercode)
 
         text =  (f"Aktuelles Wetter in {ort_name} ({zeit}):\n"
             f"{symbol}\n"
