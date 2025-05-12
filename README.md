@@ -18,4 +18,5 @@ graphische darstellug um wetterdaten abzurufen
 - drei Tage Wettervorhersage werden angezeigt
 - Wetter für verschiedene Orte 
 ## Ziele für später
+- modernes Design 
 
