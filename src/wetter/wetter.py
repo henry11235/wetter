@@ -6,17 +6,17 @@ import os
     
 def wetter_beschreibung(code):
     if code == 0:
-        return "Sonnig"
+        return "Sonnig ☀️"
     elif code in [1, 2, 3]:
-        return "Wolkig"
+        return "Bewölkt ☁️"
     elif code in [45, 48]:
-        return "Nebel"
+        return "Nebel 🌫️"
     elif code in [51, 53, 55, 61, 63, 65, 80, 81, 82]:
-        return "Regen"
+        return "Regen 🌧️"
     elif code in [71, 73, 75, 85, 86]:
-        return "Schnee"
+        return "Schnee 🌨️"
     elif code in [95, 96, 99]:
-        return "Gewitter"
+        return "Gewitter ⛈️"
     else:
         return "Unbekannt"    
 
