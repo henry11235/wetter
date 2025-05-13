@@ -187,7 +187,7 @@ def remove_from_favorites(ort):
 
 def create_favorite_section(master):
     global favorite_buttons_frame
-    frame = ctk.CTkFrame(master, width=200, height=600, fg_color="lightgray")
+    frame = ctk.CTkFrame(master, width=200, height=600, fg_color="lightblue")
     frame.pack(side="left", fill="y", padx=10, pady=10)
     
     fav_label = ctk.CTkLabel(frame, text="Favoriten", font=("Arial", 16))
@@ -215,7 +215,7 @@ def main():
     canvas = ctk.CTkCanvas(root, highlightthickness=0)
     canvas.pack(fill="both", expand=True)
 
-    content_frame = ctk.CTkFrame(master=root, width=500, height=350, fg_color="transparent")
+    content_frame = ctk.CTkFrame(master=root, width=500, height=350, fg_color="lightblue")
     content_frame.place(relx=0.5, rely=0.5, anchor="center")
 
     ort_eingabe = ctk.CTkEntry(content_frame, width=300, placeholder_text="Ort eingeben")
