@@ -18,7 +18,16 @@ def wetter_beschreibung(code):
     elif code in [95, 96, 99]:
         return "Gewitter ⛈️"
     else:
-        return "Unbekannt"    
+        return "Unbekannt"  
+    
+def update_background(canvas, root):
+    canvas_width = root.winfo_width()
+    canvas_height = root.winfo_height()
+    resized = root.bg_image_raw.resize((canvas_width, canvas_height), Image.Resampling.LANCZOS)
+    root.bg_image = ImageTk.PhotoImage(resized)
+    canvas.delete("all")  
+    canvas.create_image(0, 0, image=root.bg_image, anchor="nw")
+      
 
 def set_background_image(weather_code, root, canvas):
     if weather_code == 0:
@@ -37,15 +46,8 @@ def set_background_image(weather_code, root, canvas):
         print("Bild nicht gefunden")  
         return 
 
-    bg_image_raw = Image.open("src/wetter/" + image_path)
-    bg_image_raw = bg_image_raw.resize((600, 400), Image.Resampling.LANCZOS)
-    bg_image = ImageTk.PhotoImage(bg_image_raw)
-    
-    canvas.create_image(0, 0, image=bg_image, anchor="nw")
-    root.bg_image = bg_image 
-
- 
-
+    root.bg_image_raw = Image.open("src/wetter/" + image_path)
+    update_background(canvas, root)
       
 def ort_zu_koordinaten(ort):
     
@@ -90,7 +92,6 @@ def aktuelles_wetter_anzeigen(lat, lon, ort_name):
 
         ergebnis_label.configure(text=text)
         set_background_image(wettercode, root, canvas)
-
     except Exception as e:
         ergebnis_label.configure(text=f"Fehler beim Abruf der Wetterdaten: {e}")
         
@@ -139,12 +140,10 @@ def main():
 
     root = ctk.CTk()
     root.title("Wetter App")
-    root.geometry("600x400")
+    root.geometry("800x600")
 
-    canvas = ctk.CTkCanvas(root, width=600, height=400, highlightthickness=0)
-    canvas.place(x=0, y=0)
-
-    canvas.create_rectangle(0, 0, 600, 400, fill="#000000", stipple="gray50", outline="")
+    canvas = ctk.CTkCanvas(root, highlightthickness=0)
+    canvas.pack(fill="both", expand=True)
 
     content_frame = ctk.CTkFrame(master=root, width=500, height=350, fg_color="transparent")
     content_frame.place(relx=0.5, rely=0.5, anchor="center")
@@ -161,6 +160,12 @@ def main():
 
     vorhersage_label = ctk.CTkLabel(content_frame, text="", justify="left", wraplength=450)
     vorhersage_label.pack(pady=10)
+    
+    def on_resize(event):
+        if hasattr(root, "bg_image_raw"):
+            update_background(canvas, root)
+
+    root.bind("<Configure>", on_resize) 
 
     ort_suchen()
     root.mainloop()
