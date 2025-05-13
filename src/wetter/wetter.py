@@ -148,6 +148,11 @@ def select_favorite(ort):
     ort_eingabe.delete(0, ctk.END)
     ort_eingabe.insert(0, ort)
     ort_suchen()
+    
+def remove_from_favorites(ort):
+    if ort in favoriten:
+        favoriten.remove(ort)
+        update_favorites_buttons()
 
 def create_favorite_section(master):
     global favorite_buttons_frame
@@ -164,6 +169,10 @@ def create_favorite_section(master):
     
     add_fav_button = ctk.CTkButton(frame, text="Hinzufügen", command=lambda: add_to_favorites(ort_eingabe.get()))
     add_fav_button.pack(pady=10)
+    
+    remove_fav_button = ctk.CTkButton(frame, text="Löschen", command=lambda: remove_from_favorites(ort_eingabe.get()))
+    remove_fav_button.pack(pady=10)
+    
 
 def main():
     global root, ort_eingabe, ergebnis_label, vorhersage_label, background_label, canvas
