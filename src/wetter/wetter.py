@@ -206,7 +206,7 @@ def create_favorite_section(master):
 def main():
     global root, ort_eingabe, ergebnis_label, vorhersage_label, canvas, favorite_buttons_frame
     
-    load_favorites()  # Favoriten laden
+    load_favorites()  
     root = ctk.CTk()
     root.title("Wetter App")
     root.geometry("800x600")
