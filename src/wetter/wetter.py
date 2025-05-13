@@ -8,6 +8,7 @@ import enum
 
 favoriten = []
 
+
 def load_favorites():
     global favoriten
     if os.path.exists("favoriten.json"):
@@ -62,7 +63,7 @@ def set_background_image(weather_code, root, canvas):
     if weather_code == 0:
         image_path = "sonnig.jpg"
     elif weather_code in [1, 2, 3]:
-        image_path = "bewoelkt.jpg"
+        image_path = "wolkig.jpg"
     elif weather_code in [45, 48]:
         image_path = "nebel.jpg"
     elif weather_code in [51, 53, 55, 61, 63, 65, 80, 81, 82]:
@@ -230,7 +231,7 @@ def main():
 
     vorhersage_label = ctk.CTkLabel(content_frame, text="", justify="left", wraplength=450)
     vorhersage_label.pack(pady=10)
-    
+
     update_favorites_buttons()
 
     def on_resize(event):
@@ -244,6 +245,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
