@@ -139,7 +139,7 @@ def add_to_favorites(ort):
 
 def update_favorites_buttons():
     for widget in favorite_buttons_frame.winfo_children():
-        widget.destroy()  # Löscht bestehende Buttons
+        widget.destroy()  
     for ort in favoriten:
         button = ctk.CTkButton(favorite_buttons_frame, text=ort, command=lambda o=ort: select_favorite(o))
         button.pack(fill="x", pady=2)
@@ -154,14 +154,14 @@ def create_favorite_section(master):
     frame = ctk.CTkFrame(master, width=200, height=600, fg_color="lightgray")
     frame.pack(side="left", fill="y", padx=10, pady=10)
     
-    # Titel für Favoriten
+   
     fav_label = ctk.CTkLabel(frame, text="Favoriten", font=("Arial", 16))
     fav_label.pack(pady=10)
 
     favorite_buttons_frame = ctk.CTkFrame(frame, width=180, height=400)
     favorite_buttons_frame.pack(fill="both", pady=10)
     
-    # Favoriten hinzufügen
+    
     add_fav_button = ctk.CTkButton(frame, text="Hinzufügen", command=lambda: add_to_favorites(ort_eingabe.get()))
     add_fav_button.pack(pady=10)
 
