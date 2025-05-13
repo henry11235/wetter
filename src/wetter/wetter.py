@@ -4,7 +4,11 @@ import datetime
 from PIL import Image, ImageTk
 import json
 import os
+import io
 import enum
+
+# --- KONSTANTEN ---
+LOCATIONIQ_API_KEY = "pk.8785e94e9f62466f4bf7350354c541eb"  # <-- Hier deinen API-Key eintragen
 
 class FavoritenManager:
     def __init__(self, dateipfad="favoriten.json"):
@@ -75,39 +79,41 @@ def update_background(canvas, root):
     canvas.create_image(0, 0, image=root.bg_image, anchor="nw")
 
 def set_background_image(weather_code, root, canvas):
-    if weather_code == 0:
-        image_path = "sonnig.jpg"
-    elif weather_code in [1, 2, 3]:
-        image_path = "wolkig.jpg"
-    elif weather_code in [45, 48]:
-        image_path = "nebel.jpg"
-    elif weather_code in [51, 53, 55, 61, 63, 65, 80, 81, 82]:
-        image_path = "regen.jpg"
-    elif weather_code in [71, 73, 75, 85, 86]:
-        image_path = "schnee.jpg"
-    elif weather_code in [95, 96, 99]:
-        image_path = "gewitter.jpg"
-    else:
-        print("Bild nicht gefunden")
+    image_map = {
+        0: "sonnig.jpg",
+        1: "wolkig.jpg", 2: "wolkig.jpg", 3: "wolkig.jpg",
+        45: "nebel.jpg", 48: "nebel.jpg",
+        51: "regen.jpg", 53: "regen.jpg", 55: "regen.jpg", 61: "regen.jpg", 63: "regen.jpg", 65: "regen.jpg", 80: "regen.jpg", 81: "regen.jpg", 82: "regen.jpg",
+        71: "schnee.jpg", 73: "schnee.jpg", 75: "schnee.jpg", 85: "schnee.jpg", 86: "schnee.jpg",
+        95: "gewitter.jpg", 96: "gewitter.jpg", 99: "gewitter.jpg"
+    }
+    image_path = image_map.get(weather_code)
+    if not image_path:
         return
-
     root.bg_image_raw = Image.open("src/wetter/assets/" + image_path)
     update_background(canvas, root)
 
 def ort_zu_koordinaten(ort):
     url = f"https://nominatim.openstreetmap.org/search?q={ort}&format=json&limit=1"
+    response = requests.get(url, headers={"User-Agent": "wetter-app"})
+    daten = response.json()
+    if daten:
+        lat = float(daten[0]["lat"])
+        lon = float(daten[0]["lon"])
+        name = daten[0]["display_name"].split(",")[0]
+        return lat, lon, name
+    raise ValueError("Ort nicht gefunden")
+
+def lade_karte(lat, lon):
     try:
-        response = requests.get(url, headers={"User-Agent": "wetter-app"})
-        daten = response.json()
-        if daten:
-            lat = float(daten[0]["lat"])
-            lon = float(daten[0]["lon"])
-            name = daten[0]["display_name"].split(",")[0]
-            return lat, lon, name
-        else:
-            raise ValueError("Ort nicht gefunden")
+        url = f"https://maps.locationiq.com/v3/staticmap?key={LOCATIONIQ_API_KEY}&center={lat},{lon}&zoom=12&size=200x200&markers=icon:small-red-cutout|{lat},{lon}"
+        response = requests.get(url)
+        response.raise_for_status()
+        image_data = io.BytesIO(response.content)
+        return ImageTk.PhotoImage(Image.open(image_data))
     except Exception as e:
-        raise e
+        print(f"Fehler beim Abrufen der Karte: {e}")
+        return None
 
 def aktuelles_wetter_anzeigen(lat, lon, ort_name):
     url = (f"https://api.open-meteo.com/v1/forecast"
@@ -130,12 +136,18 @@ def aktuelles_wetter_anzeigen(lat, lon, ort_name):
                 f"{symbol}\n"
                 f"Temperatur: {temperatur}°C\n"
                 f"Wind: {wind} km/h")
-        
         zeitstempel = datetime.datetime.now().strftime("%d.%m.%Y – %H:%M:%S")
         text += f"\nZuletzt aktualisiert: {zeitstempel}"
 
         ergebnis_label.configure(text=text)
         set_background_image(wettercode, root, canvas)
+
+        # Karte anzeigen
+        karte = lade_karte(lat, lon)
+        if karte:
+            karten_label.configure(image=karte)
+            karten_label.image = karte
+
     except Exception as e:
         ergebnis_label.configure(text=f"Fehler beim Abruf der Wetterdaten: {e}")
 
@@ -215,33 +227,39 @@ def create_favorite_section(master):
     remove_fav_button.pack(pady=10)
 
 def main():
-    global root, ort_eingabe, ergebnis_label, vorhersage_label, canvas, favorite_buttons_frame, favoriten_manager
+    global root, ort_eingabe, ergebnis_label, vorhersage_label, canvas, favorite_buttons_frame, favoriten_manager, karten_label
     favoriten_manager = FavoritenManager()
 
     root = ctk.CTk()
     root.title("Wetter App")
-    root.geometry("800x600")
+    root.geometry("900x600")
 
     create_favorite_section(root)
 
     canvas = ctk.CTkCanvas(root, highlightthickness=0)
     canvas.pack(fill="both", expand=True)
 
-    content_frame = ctk.CTkFrame(master=root, width=500, height=350, fg_color="lightblue")
+    content_frame = ctk.CTkFrame(master=root, fg_color="lightblue")
     content_frame.place(relx=0.5, rely=0.5, anchor="center")
 
+    # Ort-Eingabe und Button
     ort_eingabe = ctk.CTkEntry(content_frame, width=300, placeholder_text="Ort eingeben")
-    ort_eingabe.pack(pady=(20, 10))
+    ort_eingabe.grid(row=0, column=0, columnspan=2, pady=(20, 10), padx=10)
     ort_eingabe.insert(0, "Dresden")
 
     suchen_button = ctk.CTkButton(content_frame, text="Ort suchen", command=ort_suchen)
-    suchen_button.pack(pady=10)
+    suchen_button.grid(row=1, column=0, columnspan=2, pady=10)
 
-    ergebnis_label = ctk.CTkLabel(content_frame, text="", justify="left", wraplength=450)
-    ergebnis_label.pack(pady=10)
+    # Wettertext (links) und Karte (rechts)
+    ergebnis_label = ctk.CTkLabel(content_frame, text="", justify="left", wraplength=350)
+    ergebnis_label.grid(row=2, column=0, sticky="nw", padx=10, pady=10)
 
-    vorhersage_label = ctk.CTkLabel(content_frame, text="", justify="left", wraplength=450)
-    vorhersage_label.pack(pady=10)
+    karten_label = ctk.CTkLabel(content_frame, text="")
+    karten_label.grid(row=2, column=1, sticky="ne", padx=10, pady=10)
+
+    # Vorhersage (unterhalb)
+    vorhersage_label = ctk.CTkLabel(content_frame, text="", justify="left", wraplength=700)
+    vorhersage_label.grid(row=3, column=0, columnspan=2, pady=10)
 
     update_favorites_buttons()
 
@@ -256,9 +274,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
