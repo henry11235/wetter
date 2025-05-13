@@ -6,25 +6,41 @@ import json
 import os
 import enum
 
-favoriten = []
+class FavoritenManager:
+    def __init__(self, dateipfad="favoriten.json"):
+        self.dateipfad = dateipfad
+        self.favoriten = []
+        self.lade_favoriten()
 
+    def lade_favoriten(self):
+        if os.path.exists(self.dateipfad):
+            try:
+                with open(self.dateipfad, "r") as f:
+                    self.favoriten = json.load(f)
+            except Exception as e:
+                print(f"Fehler beim Laden der Favoriten: {e}")
+                self.favoriten = []
 
-def load_favorites():
-    global favoriten
-    if os.path.exists("favoriten.json"):
+    def speichere_favoriten(self):
         try:
-            with open("favoriten.json", "r") as f:
-                favoriten = json.load(f)
+            with open(self.dateipfad, "w") as f:
+                json.dump(self.favoriten, f)
         except Exception as e:
-            print(f"Fehler beim Laden der Favoriten: {e}")
+            print(f"Fehler beim Speichern der Favoriten: {e}")
 
-def save_favorites():
-    try:
-        with open("favoriten.json", "w") as f:
-            json.dump(favoriten, f)
-    except Exception as e:
-        print(f"Fehler beim Speichern der Favoriten: {e}")
-        
+    def hinzufuegen(self, ort):
+        if ort and ort not in self.favoriten:
+            self.favoriten.append(ort)
+            self.speichere_favoriten()
+
+    def entfernen(self, ort):
+        if ort in self.favoriten:
+            self.favoriten.remove(ort)
+            self.speichere_favoriten()
+
+    def gib_favoriten(self):
+        return self.favoriten
+
 class Wettertyp(enum.Enum):
     SONNIG = "Sonnig ☀️"
     BEOEWOLKT = "Bewölkt ☁️"
@@ -33,7 +49,6 @@ class Wettertyp(enum.Enum):
     SCHNEE = "Schnee 🌨️"
     GEWITTER = "Gewitter ⛈️"
     UNBEKANNT = "Unbekannt"
-            
 
 def wetter_beschreibung(code):
     if code == 0:
@@ -56,7 +71,7 @@ def update_background(canvas, root):
     canvas_height = root.winfo_height()
     resized = root.bg_image_raw.resize((canvas_width, canvas_height), Image.Resampling.LANCZOS)
     root.bg_image = ImageTk.PhotoImage(resized)
-    canvas.delete("all")  
+    canvas.delete("all")
     canvas.create_image(0, 0, image=root.bg_image, anchor="nw")
 
 def set_background_image(weather_code, root, canvas):
@@ -73,10 +88,10 @@ def set_background_image(weather_code, root, canvas):
     elif weather_code in [95, 96, 99]:
         image_path = "gewitter.jpg"
     else:
-        print("Bild nicht gefunden")  
-        return 
+        print("Bild nicht gefunden")
+        return
 
-    root.bg_image_raw = Image.open("src/wetter/bgpictures/" + image_path)
+    root.bg_image_raw = Image.open("src/wetter/assets/" + image_path)
     update_background(canvas, root)
 
 def ort_zu_koordinaten(ort):
@@ -87,7 +102,7 @@ def ort_zu_koordinaten(ort):
         if daten:
             lat = float(daten[0]["lat"])
             lon = float(daten[0]["lon"])
-            name = daten[0]["display_name"].split(",")[0]  
+            name = daten[0]["display_name"].split(",")[0]
             return lat, lon, name
         else:
             raise ValueError("Ort nicht gefunden")
@@ -96,9 +111,9 @@ def ort_zu_koordinaten(ort):
 
 def aktuelles_wetter_anzeigen(lat, lon, ort_name):
     url = (f"https://api.open-meteo.com/v1/forecast"
-        f"?latitude={lat}&longitude={lon}"
-        "&current_weather=true"
-        "&timezone=Europe%2FBerlin")
+           f"?latitude={lat}&longitude={lon}"
+           "&current_weather=true"
+           "&timezone=Europe%2FBerlin")
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -111,10 +126,10 @@ def aktuelles_wetter_anzeigen(lat, lon, ort_name):
         wettercode = wetter["weathercode"]
         symbol = wetter_beschreibung(wettercode)
 
-        text =  (f"Aktuelles Wetter in {ort_name} ({zeit}):\n"
-            f"{symbol}\n"
-            f"Temperatur: {temperatur}°C\n"
-            f"Wind: {wind} km/h")
+        text = (f"Aktuelles Wetter in {ort_name} ({zeit}):\n"
+                f"{symbol}\n"
+                f"Temperatur: {temperatur}°C\n"
+                f"Wind: {wind} km/h")
         
         zeitstempel = datetime.datetime.now().strftime("%d.%m.%Y – %H:%M:%S")
         text += f"\nZuletzt aktualisiert: {zeitstempel}"
@@ -126,9 +141,9 @@ def aktuelles_wetter_anzeigen(lat, lon, ort_name):
 
 def wetter_vorhersage_anzeigen(lat, lon):
     url = (f"https://api.open-meteo.com/v1/forecast"
-        f"?latitude={lat}&longitude={lon}"
-        "&daily=temperature_2m_max,temperature_2m_min,weathercode"
-        "&timezone=Europe%2FBerlin")
+           f"?latitude={lat}&longitude={lon}"
+           "&daily=temperature_2m_max,temperature_2m_min,weathercode"
+           "&timezone=Europe%2FBerlin")
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -140,7 +155,7 @@ def wetter_vorhersage_anzeigen(lat, lon):
         codes = daten["daily"]["weathercode"]
 
         vorhersage_text = "3-Tage-Vorhersage:\n"
-        for i in range(3):  
+        for i in range(3):
             datum = datetime.datetime.strptime(tage[i], "%Y-%m-%d").strftime("%A, %d.%m.")
             symbol = wetter_beschreibung(codes[i])
             vorhersage_text += f"{datum}: {symbol} {min_temp[i]}–{max_temp[i]}°C\n"
@@ -163,15 +178,13 @@ def ort_suchen():
         ergebnis_label.configure(text=f"Fehler bei der Ortssuche: {e}")
 
 def add_to_favorites(ort):
-    if ort and ort not in favoriten:
-        favoriten.append(ort)
-        save_favorites()  # Speichern nach Hinzufügen
-        update_favorites_buttons()
+    favoriten_manager.hinzufuegen(ort)
+    update_favorites_buttons()
 
 def update_favorites_buttons():
     for widget in favorite_buttons_frame.winfo_children():
-        widget.destroy()  
-    for ort in favoriten:
+        widget.destroy()
+    for ort in favoriten_manager.gib_favoriten():
         button = ctk.CTkButton(favorite_buttons_frame, text=ort, command=lambda o=ort: select_favorite(o))
         button.pack(fill="x", pady=2)
 
@@ -181,32 +194,30 @@ def select_favorite(ort):
     ort_suchen()
 
 def remove_from_favorites(ort):
-    if ort in favoriten:
-        favoriten.remove(ort)
-        save_favorites()  # Speichern nach Entfernen
-        update_favorites_buttons()
+    favoriten_manager.entfernen(ort)
+    update_favorites_buttons()
 
 def create_favorite_section(master):
     global favorite_buttons_frame
     frame = ctk.CTkFrame(master, width=200, height=600, fg_color="lightblue")
     frame.pack(side="left", fill="y", padx=10, pady=10)
-    
+
     fav_label = ctk.CTkLabel(frame, text="Favoriten", font=("Arial", 16))
     fav_label.pack(pady=10)
 
     favorite_buttons_frame = ctk.CTkFrame(frame, width=180, height=400)
     favorite_buttons_frame.pack(fill="both", pady=10)
-    
+
     add_fav_button = ctk.CTkButton(frame, text="Hinzufügen", command=lambda: add_to_favorites(ort_eingabe.get()))
     add_fav_button.pack(pady=10)
-    
+
     remove_fav_button = ctk.CTkButton(frame, text="Löschen", command=lambda: remove_from_favorites(ort_eingabe.get()))
     remove_fav_button.pack(pady=10)
 
 def main():
-    global root, ort_eingabe, ergebnis_label, vorhersage_label, canvas, favorite_buttons_frame
-    
-    load_favorites()  
+    global root, ort_eingabe, ergebnis_label, vorhersage_label, canvas, favorite_buttons_frame, favoriten_manager
+    favoriten_manager = FavoritenManager()
+
     root = ctk.CTk()
     root.title("Wetter App")
     root.geometry("800x600")
@@ -245,6 +256,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
