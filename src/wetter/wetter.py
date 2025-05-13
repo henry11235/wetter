@@ -3,22 +3,6 @@ import requests
 import datetime 
 from PIL import Image, ImageTk
 import os 
-
-def wetter_symbol(code):
-    if code == 0:
-        return "sonne.png"
-    elif code in [1, 2, 3]:
-        return "bewoelkt.png"
-    elif code in [45, 48]:
-        return "nebel.png"
-    elif code in [51, 53, 55, 61, 63, 65, 80, 81, 82]:
-        return "regen.png"
-    elif code in [71, 73, 75, 85, 86]:
-        return "schnee.png"
-    elif code in [95, 96, 99]:
-        return "gewitter.png"
-    else:
-        return "Unbekannt"
     
 def wetter_beschreibung(code):
     if code == 0:
@@ -59,23 +43,6 @@ def set_background_image(weather_code, root, canvas):
     
     canvas.create_image(0, 0, image=bg_image, anchor="nw")
     root.bg_image = bg_image 
-    
-    icon_path = wetter_symbol(weather_code)
-    if icon_path != "Unbekannt":
-        icon_image = Image.open(f"src/wetter/{icon_path}")
-        icon_image = icon_image.resize((50, 50), Image.Resampling.LANCZOS)
-        icon_photo = ImageTk.PhotoImage(icon_image)
-
-        # Bild zeichnen
-        if hasattr(root, "icon_image_id"):
-            canvas.itemconfig(root.icon_image_id, image=icon_photo)
-        else:
-            root.icon_image_id = canvas.create_image(300, 100, image=icon_photo)
-
-        # Referenz sicher speichern (Liste!)
-        if not hasattr(root, "images"):
-            root.images = []
-        root.images.append(icon_photo)
 
  
 
@@ -145,7 +112,7 @@ def wetter_vorhersage_anzeigen(lat, lon):
         vorhersage_text = "3-Tage-Vorhersage:\n"
         for i in range(3):  
             datum = datetime.datetime.strptime(tage[i], "%Y-%m-%d").strftime("%A, %d.%m.")
-            symbol = wetter_symbol(codes[i])
+            symbol = wetter_beschreibung(codes[i])
             vorhersage_text += f"{datum}: {symbol} {min_temp[i]}–{max_temp[i]}°C\n"
 
         vorhersage_label.configure(text=vorhersage_text)
