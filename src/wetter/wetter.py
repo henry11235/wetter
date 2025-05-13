@@ -1,9 +1,10 @@
 import customtkinter as ctk
 import requests
-import datetime 
+import datetime
 from PIL import Image, ImageTk
-import os 
-    
+
+favoriten = []
+
 def wetter_beschreibung(code):
     if code == 0:
         return "Sonnig ☀️"
@@ -18,8 +19,8 @@ def wetter_beschreibung(code):
     elif code in [95, 96, 99]:
         return "Gewitter ⛈️"
     else:
-        return "Unbekannt"  
-    
+        return "Unbekannt"
+
 def update_background(canvas, root):
     canvas_width = root.winfo_width()
     canvas_height = root.winfo_height()
@@ -27,7 +28,6 @@ def update_background(canvas, root):
     root.bg_image = ImageTk.PhotoImage(resized)
     canvas.delete("all")  
     canvas.create_image(0, 0, image=root.bg_image, anchor="nw")
-      
 
 def set_background_image(weather_code, root, canvas):
     if weather_code == 0:
@@ -48,9 +48,8 @@ def set_background_image(weather_code, root, canvas):
 
     root.bg_image_raw = Image.open("src/wetter/" + image_path)
     update_background(canvas, root)
-      
+
 def ort_zu_koordinaten(ort):
-    
     url = f"https://nominatim.openstreetmap.org/search?q={ort}&format=json&limit=1"
     try:
         response = requests.get(url, headers={"User-Agent": "wetter-app"})
@@ -63,7 +62,7 @@ def ort_zu_koordinaten(ort):
         else:
             raise ValueError("Ort nicht gefunden")
     except Exception as e:
-        raise e     
+        raise e
 
 def aktuelles_wetter_anzeigen(lat, lon, ort_name):
     url = (f"https://api.open-meteo.com/v1/forecast"
@@ -94,7 +93,7 @@ def aktuelles_wetter_anzeigen(lat, lon, ort_name):
         set_background_image(wettercode, root, canvas)
     except Exception as e:
         ergebnis_label.configure(text=f"Fehler beim Abruf der Wetterdaten: {e}")
-        
+
 def wetter_vorhersage_anzeigen(lat, lon):
     url = (f"https://api.open-meteo.com/v1/forecast"
         f"?latitude={lat}&longitude={lon}"
@@ -120,9 +119,8 @@ def wetter_vorhersage_anzeigen(lat, lon):
 
     except Exception as e:
         vorhersage_label.configure(text=f"Fehler bei der Vorhersage: {e}")
-        
+
 def ort_suchen():
-   
     ort = ort_eingabe.get()
     if not ort:
         ergebnis_label.configure(text="Bitte einen Ort eingeben.")
@@ -132,15 +130,49 @@ def ort_suchen():
         aktuelles_wetter_anzeigen(lat, lon, ort_name)
         wetter_vorhersage_anzeigen(lat, lon)
     except Exception as e:
-        ergebnis_label.configure(text=f"Fehler bei der Ortssuche: {e}")      
-             
-        
+        ergebnis_label.configure(text=f"Fehler bei der Ortssuche: {e}")
+
+def add_to_favorites(ort):
+    if ort and ort not in favoriten:
+        favoriten.append(ort)
+        update_favorites_buttons()
+
+def update_favorites_buttons():
+    for widget in favorite_buttons_frame.winfo_children():
+        widget.destroy()  # Löscht bestehende Buttons
+    for ort in favoriten:
+        button = ctk.CTkButton(favorite_buttons_frame, text=ort, command=lambda o=ort: select_favorite(o))
+        button.pack(fill="x", pady=2)
+
+def select_favorite(ort):
+    ort_eingabe.delete(0, ctk.END)
+    ort_eingabe.insert(0, ort)
+    ort_suchen()
+
+def create_favorite_section(master):
+    global favorite_buttons_frame
+    frame = ctk.CTkFrame(master, width=200, height=600, fg_color="lightgray")
+    frame.pack(side="left", fill="y", padx=10, pady=10)
+    
+    # Titel für Favoriten
+    fav_label = ctk.CTkLabel(frame, text="Favoriten", font=("Arial", 16))
+    fav_label.pack(pady=10)
+
+    favorite_buttons_frame = ctk.CTkFrame(frame, width=180, height=400)
+    favorite_buttons_frame.pack(fill="both", pady=10)
+    
+    # Favoriten hinzufügen
+    add_fav_button = ctk.CTkButton(frame, text="Hinzufügen", command=lambda: add_to_favorites(ort_eingabe.get()))
+    add_fav_button.pack(pady=10)
+
 def main():
     global root, ort_eingabe, ergebnis_label, vorhersage_label, background_label, canvas
 
     root = ctk.CTk()
     root.title("Wetter App")
     root.geometry("800x600")
+
+    create_favorite_section(root)
 
     canvas = ctk.CTkCanvas(root, highlightthickness=0)
     canvas.pack(fill="both", expand=True)
@@ -160,17 +192,17 @@ def main():
 
     vorhersage_label = ctk.CTkLabel(content_frame, text="", justify="left", wraplength=450)
     vorhersage_label.pack(pady=10)
-    
+
     def on_resize(event):
         if hasattr(root, "bg_image_raw"):
             update_background(canvas, root)
 
-    root.bind("<Configure>", on_resize) 
+    root.bind("<Configure>", on_resize)
 
     ort_suchen()
     root.mainloop()
 
-
 if __name__ == "__main__":
     main()
+
 
