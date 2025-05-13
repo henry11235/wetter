@@ -6,10 +6,9 @@ import json
 import os
 import io
 import enum
+from staticmap import StaticMap, CircleMarker
 
-# --- KONSTANTEN ---
-LOCATIONIQ_API_KEY = "pk.8785e94e9f62466f4bf7350354c541eb"  # <-- Hier deinen API-Key eintragen
-
+# --- FAVORITENMANAGER & WETTERTYP ---
 class FavoritenManager:
     def __init__(self, dateipfad="favoriten.json"):
         self.dateipfad = dateipfad
@@ -21,16 +20,15 @@ class FavoritenManager:
             try:
                 with open(self.dateipfad, "r") as f:
                     self.favoriten = json.load(f)
-            except Exception as e:
-                print(f"Fehler beim Laden der Favoriten: {e}")
+            except:
                 self.favoriten = []
 
     def speichere_favoriten(self):
         try:
             with open(self.dateipfad, "w") as f:
                 json.dump(self.favoriten, f)
-        except Exception as e:
-            print(f"Fehler beim Speichern der Favoriten: {e}")
+        except:
+            pass
 
     def hinzufuegen(self, ort):
         if ort and ort not in self.favoriten:
@@ -71,6 +69,8 @@ def wetter_beschreibung(code):
         return Wettertyp.UNBEKANNT.value
 
 def update_background(canvas, root):
+    if not hasattr(root, "bg_image_raw"):
+        return
     canvas_width = root.winfo_width()
     canvas_height = root.winfo_height()
     resized = root.bg_image_raw.resize((canvas_width, canvas_height), Image.Resampling.LANCZOS)
@@ -104,15 +104,17 @@ def ort_zu_koordinaten(ort):
         return lat, lon, name
     raise ValueError("Ort nicht gefunden")
 
+# NEU: Lade Karte lokal mit staticmap
 def lade_karte(lat, lon):
     try:
-        url = f"https://maps.locationiq.com/v3/staticmap?key={LOCATIONIQ_API_KEY}&center={lat},{lon}&zoom=12&size=200x200&markers=icon:small-red-cutout|{lat},{lon}"
-        response = requests.get(url)
-        response.raise_for_status()
-        image_data = io.BytesIO(response.content)
-        return ImageTk.PhotoImage(Image.open(image_data))
+        m = StaticMap(200, 200)
+        marker = CircleMarker((lon, lat), 'red', 12)
+        m.add_marker(marker)
+        image = m.render(zoom=3)
+        image = image.resize((200, 200), Image.LANCZOS)
+        return ImageTk.PhotoImage(image)
     except Exception as e:
-        print(f"Fehler beim Abrufen der Karte: {e}")
+        print(f"Fehler beim Erzeugen der Offline-Karte: {e}")
         return None
 
 def aktuelles_wetter_anzeigen(lat, lon, ort_name):
@@ -145,7 +147,7 @@ def aktuelles_wetter_anzeigen(lat, lon, ort_name):
         # Karte anzeigen
         karte = lade_karte(lat, lon)
         if karte:
-            karten_label.configure(image=karte)
+            karten_label.configure(image=karte, text="")
             karten_label.image = karte
 
     except Exception as e:
@@ -211,13 +213,13 @@ def remove_from_favorites(ort):
 
 def create_favorite_section(master):
     global favorite_buttons_frame
-    frame = ctk.CTkFrame(master, width=200, height=600, fg_color="lightblue")
+    frame = ctk.CTkFrame(master, width=200)
     frame.pack(side="left", fill="y", padx=10, pady=10)
 
     fav_label = ctk.CTkLabel(frame, text="Favoriten", font=("Arial", 16))
     fav_label.pack(pady=10)
 
-    favorite_buttons_frame = ctk.CTkFrame(frame, width=180, height=400)
+    favorite_buttons_frame = ctk.CTkFrame(frame)
     favorite_buttons_frame.pack(fill="both", pady=10)
 
     add_fav_button = ctk.CTkButton(frame, text="Hinzufügen", command=lambda: add_to_favorites(ort_eingabe.get()))
@@ -230,42 +232,44 @@ def main():
     global root, ort_eingabe, ergebnis_label, vorhersage_label, canvas, favorite_buttons_frame, favoriten_manager, karten_label
     favoriten_manager = FavoritenManager()
 
+    ctk.set_appearance_mode("System")
+    ctk.set_default_color_theme("blue")
+
     root = ctk.CTk()
     root.title("Wetter App")
-    root.geometry("900x600")
+    root.geometry("950x600")
 
     create_favorite_section(root)
 
     canvas = ctk.CTkCanvas(root, highlightthickness=0)
     canvas.pack(fill="both", expand=True)
 
-    content_frame = ctk.CTkFrame(master=root, fg_color="lightblue")
+    content_frame = ctk.CTkFrame(master=root)
     content_frame.place(relx=0.5, rely=0.5, anchor="center")
 
-    # Ort-Eingabe und Button
     ort_eingabe = ctk.CTkEntry(content_frame, width=300, placeholder_text="Ort eingeben")
-    ort_eingabe.grid(row=0, column=0, columnspan=2, pady=(20, 10), padx=10)
+    ort_eingabe.pack(pady=(20, 10))
     ort_eingabe.insert(0, "Dresden")
 
     suchen_button = ctk.CTkButton(content_frame, text="Ort suchen", command=ort_suchen)
-    suchen_button.grid(row=1, column=0, columnspan=2, pady=10)
+    suchen_button.pack(pady=10)
 
-    # Wettertext (links) und Karte (rechts)
-    ergebnis_label = ctk.CTkLabel(content_frame, text="", justify="left", wraplength=350)
-    ergebnis_label.grid(row=2, column=0, sticky="nw", padx=10, pady=10)
+    info_frame = ctk.CTkFrame(content_frame)
+    info_frame.pack(pady=10, fill="both")
 
-    karten_label = ctk.CTkLabel(content_frame, text="")
-    karten_label.grid(row=2, column=1, sticky="ne", padx=10, pady=10)
+    ergebnis_label = ctk.CTkLabel(info_frame, text="", justify="left", wraplength=350)
+    ergebnis_label.pack(side="left", padx=10)
 
-    # Vorhersage (unterhalb)
-    vorhersage_label = ctk.CTkLabel(content_frame, text="", justify="left", wraplength=700)
-    vorhersage_label.grid(row=3, column=0, columnspan=2, pady=10)
+    karten_label = ctk.CTkLabel(info_frame, text="")
+    karten_label.pack(side="right", padx=10)
+
+    vorhersage_label = ctk.CTkLabel(content_frame, text="", justify="left", wraplength=450)
+    vorhersage_label.pack(pady=10)
 
     update_favorites_buttons()
 
     def on_resize(event):
-        if hasattr(root, "bg_image_raw"):
-            update_background(canvas, root)
+        update_background(canvas, root)
 
     root.bind("<Configure>", on_resize)
 
