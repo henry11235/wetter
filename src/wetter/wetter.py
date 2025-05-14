@@ -9,7 +9,7 @@ import io
 import enum
 from staticmap import StaticMap, CircleMarker
 
-# --- FAVORITENMANAGER & WETTERTYP ---
+
 class FavoritenManager:
     def __init__(self, dateipfad="favoriten.json"):
         self.dateipfad = dateipfad
@@ -144,7 +144,7 @@ def aktuelles_wetter_anzeigen(lat, lon, ort_name):
         ergebnis_label.configure(text=text)
         set_background_image(wettercode, root, canvas)
 
-        # Karte anzeigen
+        
         karte = lade_karte(lat, lon)
         if karte:
             karten_label.configure(image=karte, text="")
@@ -196,11 +196,11 @@ def add_to_favorites(ort):
     update_favorites_buttons()
     
 def update_favorites_buttons():
-    # Buttons löschen, bevor neue hinzugefügt werden
+    
     for widget in favorite_buttons_frame.winfo_children():
         widget.destroy()
     
-    # Favoriten-Buttons erstellen
+    
     for ort in favoriten_manager.gib_favoriten():
         button = ctk.CTkButton(favorite_buttons_frame, text=ort, command=lambda o=ort: select_favorite(o),
                                corner_radius=10, height=40, width=180, 
@@ -302,7 +302,7 @@ def main():
     stunden_button = ctk.CTkButton(content_frame, text="Stündliche Vorhersage", command=lambda: zeige_stundenansicht())
     stunden_button.pack(pady=10)
 
-    stundenansicht_frame.lower()  # Start versteckt
+    stundenansicht_frame.lower()  
 
     def zeige_stundenansicht():
         ort = ort_eingabe.get()
