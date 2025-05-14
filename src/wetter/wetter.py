@@ -287,6 +287,67 @@ def main():
     root.bind("<Configure>", on_resize)
 
     ort_suchen()
+    
+    stundenansicht_frame = ctk.CTkFrame(root)
+    stundenansicht_frame.place(relx=0.5, rely=0.5, anchor="center")
+
+    stunden_label = ctk.CTkLabel(stundenansicht_frame, text="", justify="left", wraplength=500)
+    stunden_label.pack(pady=20)
+
+    zurueck_button = ctk.CTkButton(stundenansicht_frame, text="Zurück", command=lambda: zeige_hauptansicht())
+    zurueck_button.pack(pady=10)
+
+    stunden_button = ctk.CTkButton(content_frame, text="Stündliche Vorhersage", command=lambda: zeige_stundenansicht())
+    stunden_button.pack(pady=10)
+
+    stundenansicht_frame.lower()  # Start versteckt
+
+    def zeige_stundenansicht():
+        ort = ort_eingabe.get()
+        if not ort:
+            stunden_label.configure(text="Bitte zuerst einen Ort eingeben.")
+            return
+        try:
+            lat, lon, _ = ort_zu_koordinaten(ort)
+            stunden_vorhersage_anzeigen(lat, lon)
+            content_frame.lower()
+            stundenansicht_frame.lift()
+        except Exception as e:
+            stunden_label.configure(text=f"Fehler: {e}")
+
+    def zeige_hauptansicht():
+        stundenansicht_frame.lower()
+        content_frame.lift()
+
+    def stunden_vorhersage_anzeigen(lat, lon):
+        url = (f"https://api.open-meteo.com/v1/forecast"
+               f"?latitude={lat}&longitude={lon}"
+               "&hourly=temperature_2m,weathercode"
+               "&timezone=Europe%2FBerlin")
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            daten = response.json()
+
+            stunden = daten["hourly"]["time"]
+            temperaturen = daten["hourly"]["temperature_2m"]
+            codes = daten["hourly"]["weathercode"]
+
+            jetzt = datetime.datetime.now()
+            vorhersage_text = "Stündliche Vorhersage:\n\n"
+
+            for i in range(len(stunden)):
+                zeitpunkt = datetime.datetime.strptime(stunden[i], "%Y-%m-%dT%H:%M")
+                if zeitpunkt > jetzt and zeitpunkt < jetzt + datetime.timedelta(hours=12):
+                    uhrzeit = zeitpunkt.strftime("%H:%M")
+                    symbol = wetter_beschreibung(codes[i])
+                    vorhersage_text += f"{uhrzeit}: {symbol}, {temperaturen[i]}°C\n"
+
+            stunden_label.configure(text=vorhersage_text)
+
+        except Exception as e:
+            stunden_label.configure(text=f"Fehler beim Abruf: {e}")
+
     root.mainloop()
 
 if __name__ == "__main__":
