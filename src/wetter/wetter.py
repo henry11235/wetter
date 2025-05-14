@@ -195,11 +195,17 @@ def add_to_favorites(ort):
     update_favorites_buttons()
 
 def update_favorites_buttons():
+    # Buttons löschen, bevor neue hinzugefügt werden
     for widget in favorite_buttons_frame.winfo_children():
         widget.destroy()
+    
+    # Favoriten-Buttons erstellen
     for ort in favoriten_manager.gib_favoriten():
-        button = ctk.CTkButton(favorite_buttons_frame, text=ort, command=lambda o=ort: select_favorite(o))
-        button.pack(fill="x", pady=2)
+        button = ctk.CTkButton(favorite_buttons_frame, text=ort, command=lambda o=ort: select_favorite(o),
+                               corner_radius=10, height=40, width=180, 
+                               fg_color="lightblue", hover_color="lightseagreen", text_color="black")
+        button.pack(fill="x", pady=5)
+
 
 def select_favorite(ort):
     ort_eingabe.delete(0, ctk.END)
@@ -212,21 +218,28 @@ def remove_from_favorites(ort):
 
 def create_favorite_section(master):
     global favorite_buttons_frame
-    frame = ctk.CTkFrame(master, width=200)
+    frame = ctk.CTkFrame(master, width=250, height=550, corner_radius=20, fg_color="gray90")
     frame.pack(side="left", fill="y", padx=10, pady=10)
 
-    fav_label = ctk.CTkLabel(frame, text="Favoriten", font=("Arial", 16))
+    fav_label = ctk.CTkLabel(frame, text="Favoriten", font=("Arial", 18, "bold"), text_color="black")
     fav_label.pack(pady=10)
 
-    favorite_buttons_frame = ctk.CTkFrame(frame)
+    favorite_buttons_frame = ctk.CTkFrame(frame, fg_color="transparent")
     favorite_buttons_frame.pack(fill="both", pady=10)
 
-    add_fav_button = ctk.CTkButton(frame, text="Hinzufügen", command=lambda: add_to_favorites(ort_eingabe.get()))
-    add_fav_button.pack(pady=10)
+    
+    add_fav_button = ctk.CTkButton(frame, text="Hinzufügen", command=lambda: add_to_favorites(ort_eingabe.get()), 
+                                   corner_radius=10, width=180, height=40, 
+                                   fg_color="lightgreen", hover_color="green", text_color="black")
+    add_fav_button.pack(pady=5)
 
-    remove_fav_button = ctk.CTkButton(frame, text="Löschen", command=lambda: remove_from_favorites(ort_eingabe.get()))
-    remove_fav_button.pack(pady=10)
+    
+    remove_fav_button = ctk.CTkButton(frame, text="Löschen", command=lambda: remove_from_favorites(ort_eingabe.get()), 
+                                      corner_radius=10, width=180, height=40, 
+                                      fg_color="lightcoral", hover_color="salmon", text_color="black")
+    remove_fav_button.pack(pady=5)
 
+    update_favorites_buttons()
 def main():
     global root, ort_eingabe, ergebnis_label, vorhersage_label, canvas, favorite_buttons_frame, favoriten_manager, karten_label
     favoriten_manager = FavoritenManager()
