@@ -237,7 +237,7 @@ def create_favorite_section(master):
     
     remove_fav_button = ctk.CTkButton(frame, text="Löschen", command=lambda: remove_from_favorites(ort_eingabe.get()), 
                                       corner_radius=10, width=180, height=40, 
-                                      fg_color="lightcoral", hover_color="salmon", text_color="black")
+                                      fg_color="lightcoral", hover_color="red", text_color="black")
     remove_fav_button.pack(pady=5)
 
     update_favorites_buttons()
