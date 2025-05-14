@@ -104,7 +104,6 @@ def ort_zu_koordinaten(ort):
         return lat, lon, name
     raise ValueError("Ort nicht gefunden")
 
-# NEU: Lade Karte lokal mit staticmap
 def lade_karte(lat, lon):
     try:
         m = StaticMap(200, 200)
