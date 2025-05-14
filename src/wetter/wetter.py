@@ -7,38 +7,11 @@ import customtkinter as ctk_image
 import requests
 import datetime
 from PIL import Image, ImageTk
-import json
-import os
-import enum
 from staticmap import StaticMap, CircleMarker
 from wetter.favoriten_manager import favoriten_manager
 from wetter.weather_api import ort_zu_koordinaten, aktuelles_wetter_anzeigen, wetter_vorhersage_anzeigen, stunden_vorhersage_anzeigen
 from wetter.ui import create_favorite_section, update_background, set_background_image, lade_karte
-
-class Wettertyp(enum.Enum):
-    SONNIG = "Sonnig ☀️"
-    BEOEWOLKT = "Bewölkt ☁️"
-    NEBEL = "Nebel 🌫️"
-    REGEN = "Regen 🌧️"
-    SCHNEE = "Schnee 🌨️"
-    GEWITTER = "Gewitter ⛈️"
-    UNBEKANNT = "Unbekannt"
-
-def wetter_beschreibung(code):
-    if code == 0:
-        return Wettertyp.SONNIG.value
-    elif code in [1, 2, 3]:
-        return Wettertyp.BEOEWOLKT.value
-    elif code in [45, 48]:
-        return Wettertyp.NEBEL.value
-    elif code in [51, 53, 55, 61, 63, 65, 80, 81, 82]:
-        return Wettertyp.REGEN.value
-    elif code in [71, 73, 75, 85, 86]:
-        return Wettertyp.SCHNEE.value
-    elif code in [95, 96, 99]:
-        return Wettertyp.GEWITTER.value
-    else:
-        return Wettertyp.UNBEKANNT.value
+from wetter.weather_types import wetter_beschreibung
 
 def update_background(canvas, root):
     if not hasattr(root, "bg_image_raw"):
