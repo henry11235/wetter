@@ -1,3 +1,7 @@
+"""
+Main entry point for the Wetter application.
+"""
+
 import customtkinter as ctk
 import customtkinter as ctk_image
 import requests
@@ -5,44 +9,11 @@ import datetime
 from PIL import Image, ImageTk
 import json
 import os
-import io
 import enum
 from staticmap import StaticMap, CircleMarker
-
-
-class FavoritenManager:
-    def __init__(self, dateipfad="favoriten.json"):
-        self.dateipfad = dateipfad
-        self.favoriten = []
-        self.lade_favoriten()
-
-    def lade_favoriten(self):
-        if os.path.exists(self.dateipfad):
-            try:
-                with open(self.dateipfad, "r") as f:
-                    self.favoriten = json.load(f)
-            except:
-                self.favoriten = []
-
-    def speichere_favoriten(self):
-        try:
-            with open(self.dateipfad, "w") as f:
-                json.dump(self.favoriten, f)
-        except:
-            pass
-
-    def hinzufuegen(self, ort):
-        if ort and ort not in self.favoriten:
-            self.favoriten.append(ort)
-            self.speichere_favoriten()
-
-    def entfernen(self, ort):
-        if ort in self.favoriten:
-            self.favoriten.remove(ort)
-            self.speichere_favoriten()
-
-    def gib_favoriten(self):
-        return self.favoriten
+from wetter.FavoritenManager import FavoritenManager
+from wetter.weather_api import ort_zu_koordinaten, aktuelles_wetter_anzeigen, wetter_vorhersage_anzeigen, stunden_vorhersage_anzeigen
+from wetter.ui import create_favorite_section, update_background, set_background_image, lade_karte
 
 class Wettertyp(enum.Enum):
     SONNIG = "Sonnig ☀️"
@@ -117,7 +88,7 @@ def lade_karte(lat, lon):
         print(f"Fehler beim Erzeugen der Offline-Karte: {e}")
         return None
 
-def aktuelles_wetter_anzeigen(lat, lon, ort_name):
+def aktuelles_wetter_anzeigen(lat, lon, ort_name, ergebnis_label, root, canvas, karten_label):
     url = (f"https://api.open-meteo.com/v1/forecast"
            f"?latitude={lat}&longitude={lon}"
            "&current_weather=true"
@@ -144,7 +115,7 @@ def aktuelles_wetter_anzeigen(lat, lon, ort_name):
         ergebnis_label.configure(text=text)
         set_background_image(wettercode, root, canvas)
 
-        
+
         karte = lade_karte(lat, lon)
         if karte:
             karten_label.configure(image=karte, text="")
@@ -153,7 +124,7 @@ def aktuelles_wetter_anzeigen(lat, lon, ort_name):
     except Exception as e:
         ergebnis_label.configure(text=f"Fehler beim Abruf der Wetterdaten: {e}")
 
-def wetter_vorhersage_anzeigen(lat, lon):
+def wetter_vorhersage_anzeigen(lat, lon, vorhersage_label):
     url = (f"https://api.open-meteo.com/v1/forecast"
            f"?latitude={lat}&longitude={lon}"
            "&daily=temperature_2m_max,temperature_2m_min,weathercode"
@@ -186,24 +157,24 @@ def ort_suchen():
         return
     try:
         lat, lon, ort_name = ort_zu_koordinaten(ort)
-        aktuelles_wetter_anzeigen(lat, lon, ort_name)
-        wetter_vorhersage_anzeigen(lat, lon)
+        aktuelles_wetter_anzeigen(lat, lon, ort_name, ergebnis_label, root, canvas, karten_label)
+        wetter_vorhersage_anzeigen(lat, lon, vorhersage_label)
     except Exception as e:
         ergebnis_label.configure(text=f"Fehler bei der Ortssuche: {e}")
 
 def add_to_favorites(ort):
     favoriten_manager.hinzufuegen(ort)
     update_favorites_buttons()
-    
+
 def update_favorites_buttons():
-    
+
     for widget in favorite_buttons_frame.winfo_children():
         widget.destroy()
-    
-    
+
+
     for ort in favoriten_manager.gib_favoriten():
         button = ctk.CTkButton(favorite_buttons_frame, text=ort, command=lambda o=ort: select_favorite(o),
-                               corner_radius=10, height=40, width=180, 
+                               corner_radius=10, height=40, width=180,
                                fg_color="lightblue", hover_color="lightseagreen", text_color="black")
         button.pack(fill="x", pady=5)
 
@@ -228,19 +199,20 @@ def create_favorite_section(master):
     favorite_buttons_frame = ctk.CTkFrame(frame, fg_color="transparent")
     favorite_buttons_frame.pack(fill="both", pady=10)
 
-    
-    add_fav_button = ctk.CTkButton(frame, text="Hinzufügen", command=lambda: add_to_favorites(ort_eingabe.get()), 
-                                   corner_radius=10, width=180, height=40, 
+
+    add_fav_button = ctk.CTkButton(frame, text="Hinzufügen", command=lambda: add_to_favorites(ort_eingabe.get()),
+                                   corner_radius=10, width=180, height=40,
                                    fg_color="lightgreen", hover_color="green", text_color="black")
     add_fav_button.pack(pady=5)
 
-    
-    remove_fav_button = ctk.CTkButton(frame, text="Löschen", command=lambda: remove_from_favorites(ort_eingabe.get()), 
-                                      corner_radius=10, width=180, height=40, 
+
+    remove_fav_button = ctk.CTkButton(frame, text="Löschen", command=lambda: remove_from_favorites(ort_eingabe.get()),
+                                      corner_radius=10, width=180, height=40,
                                       fg_color="lightcoral", hover_color="red", text_color="black")
     remove_fav_button.pack(pady=5)
 
     update_favorites_buttons()
+
 def main():
     global root, ort_eingabe, ergebnis_label, vorhersage_label, canvas, favorite_buttons_frame, favoriten_manager, karten_label
     favoriten_manager = FavoritenManager()
@@ -263,7 +235,7 @@ def main():
     ort_eingabe = ctk.CTkEntry(content_frame, width=300, placeholder_text="Ort eingeben")
     ort_eingabe.pack(pady=(20, 10))
     ort_eingabe.insert(0, "Dresden")
-    
+
     ort_eingabe.bind("<Return>", lambda event: ort_suchen())
 
     suchen_button = ctk.CTkButton(content_frame, text="Ort suchen", command=ort_suchen)
@@ -289,7 +261,7 @@ def main():
     root.bind("<Configure>", on_resize)
 
     ort_suchen()
-    
+
     stundenansicht_frame = ctk.CTkFrame(root)
     stundenansicht_frame.place(relx=0.5, rely=0.5, anchor="center")
 
@@ -302,7 +274,7 @@ def main():
     stunden_button = ctk.CTkButton(content_frame, text="Stündliche Vorhersage", command=lambda: zeige_stundenansicht())
     stunden_button.pack(pady=10)
 
-    stundenansicht_frame.lower()  
+    stundenansicht_frame.lower()
 
     def zeige_stundenansicht():
         ort = ort_eingabe.get()
@@ -311,7 +283,7 @@ def main():
             return
         try:
             lat, lon, _ = ort_zu_koordinaten(ort)
-            stunden_vorhersage_anzeigen(lat, lon)
+            stunden_vorhersage_anzeigen(lat, lon, stunden_label)
             content_frame.lower()
             stundenansicht_frame.lift()
         except Exception as e:
@@ -320,35 +292,6 @@ def main():
     def zeige_hauptansicht():
         stundenansicht_frame.lower()
         content_frame.lift()
-
-    def stunden_vorhersage_anzeigen(lat, lon):
-        url = (f"https://api.open-meteo.com/v1/forecast"
-               f"?latitude={lat}&longitude={lon}"
-               "&hourly=temperature_2m,weathercode"
-               "&timezone=Europe%2FBerlin")
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            daten = response.json()
-
-            stunden = daten["hourly"]["time"]
-            temperaturen = daten["hourly"]["temperature_2m"]
-            codes = daten["hourly"]["weathercode"]
-
-            jetzt = datetime.datetime.now()
-            vorhersage_text = "Stündliche Vorhersage:\n\n"
-
-            for i in range(len(stunden)):
-                zeitpunkt = datetime.datetime.strptime(stunden[i], "%Y-%m-%dT%H:%M")
-                if zeitpunkt > jetzt and zeitpunkt < jetzt + datetime.timedelta(hours=12):
-                    uhrzeit = zeitpunkt.strftime("%H:%M")
-                    symbol = wetter_beschreibung(codes[i])
-                    vorhersage_text += f"{uhrzeit}: {symbol}, {temperaturen[i]}°C\n"
-
-            stunden_label.configure(text=vorhersage_text)
-
-        except Exception as e:
-            stunden_label.configure(text=f"Fehler beim Abruf: {e}")
 
     root.mainloop()
 
