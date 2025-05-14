@@ -10,7 +10,7 @@ from .wetter import (
     wetter_vorhersage_anzeigen,
     main
 )
-from .FavoritenManager import FavoritenManager
+from .favoriten_manager import favoriten_manager
 
 __all__ = [
     "Wettertyp",
@@ -18,6 +18,6 @@ __all__ = [
     "ort_zu_koordinaten",
     "aktuelles_wetter_anzeigen",
     "wetter_vorhersage_anzeigen",
-    "FavoritenManager",
+    "favoriten_manager",
     "main"
 ]

@@ -1,7 +1,7 @@
 import json
 import os
 
-class FavoritenManager:
+class favoriten_manager:
     def __init__(self, dateipfad="favoriten.json"):
         self.dateipfad = dateipfad
         self.favoriten = []

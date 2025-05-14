@@ -11,7 +11,7 @@ import json
 import os
 import enum
 from staticmap import StaticMap, CircleMarker
-from wetter.FavoritenManager import FavoritenManager
+from wetter.favoriten_manager import favoriten_manager
 from wetter.weather_api import ort_zu_koordinaten, aktuelles_wetter_anzeigen, wetter_vorhersage_anzeigen, stunden_vorhersage_anzeigen
 from wetter.ui import create_favorite_section, update_background, set_background_image, lade_karte
 
@@ -215,7 +215,7 @@ def create_favorite_section(master):
 
 def main():
     global root, ort_eingabe, ergebnis_label, vorhersage_label, canvas, favorite_buttons_frame, favoriten_manager, karten_label
-    favoriten_manager = FavoritenManager()
+    favoriten_manager = favoriten_manager()
 
     ctk.set_appearance_mode("System")
     ctk.set_default_color_theme("blue")
