@@ -193,7 +193,7 @@ def ort_suchen():
 def add_to_favorites(ort):
     favoriten_manager.hinzufuegen(ort)
     update_favorites_buttons()
-
+    
 def update_favorites_buttons():
     # Buttons löschen, bevor neue hinzugefügt werden
     for widget in favorite_buttons_frame.winfo_children():
@@ -221,7 +221,7 @@ def create_favorite_section(master):
     frame = ctk.CTkFrame(master, width=250, height=550, corner_radius=20, fg_color="gray90")
     frame.pack(side="left", fill="y", padx=10, pady=10)
 
-    fav_label = ctk.CTkLabel(frame, text="Favoriten", font=("Arial", 18, "bold"), text_color="black")
+    fav_label = ctk.CTkLabel(frame, text="⭐Favoriten⭐", font=("Arial", 18, "bold"), text_color="black")
     fav_label.pack(pady=10)
 
     favorite_buttons_frame = ctk.CTkFrame(frame, fg_color="transparent")

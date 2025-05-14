@@ -11,14 +11,6 @@ graphische darstellug um wetterdaten abzurufen
   poetry shell
   pytest
   ```
-## Ziele für Version 1
-- das lokale Wetter für Dresden wird angezeigt
-- ein passendes Icon für das Wetter wird angezeigt
-- hübsches Design (wird im Laufe der Umsetzung festgelegt)
-- drei Tage Wettervorhersage werden angezeigt
-- Wetter für verschiedene Orte 
-## Ziele für später
-- modernes Design 
-- runde ecken
-- gleiche darstellung bei max. bildschirm
+
+
 
