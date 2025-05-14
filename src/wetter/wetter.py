@@ -1,4 +1,5 @@
 import customtkinter as ctk
+import customtkinter as ctk_image
 import requests
 import datetime
 from PIL import Image, ImageTk
@@ -111,7 +112,7 @@ def lade_karte(lat, lon):
         m.add_marker(marker)
         image = m.render(zoom=3)
         image = image.resize((200, 200), Image.LANCZOS)
-        return ImageTk.PhotoImage(image)
+        return ctk_image.CTkImage(light_image=image, dark_image=image, size=(200, 200))
     except Exception as e:
         print(f"Fehler beim Erzeugen der Offline-Karte: {e}")
         return None
