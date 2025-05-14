@@ -263,6 +263,8 @@ def main():
     ort_eingabe = ctk.CTkEntry(content_frame, width=300, placeholder_text="Ort eingeben")
     ort_eingabe.pack(pady=(20, 10))
     ort_eingabe.insert(0, "Dresden")
+    
+    ort_eingabe.bind("<Return>", lambda event: ort_suchen())
 
     suchen_button = ctk.CTkButton(content_frame, text="Ort suchen", command=ort_suchen)
     suchen_button.pack(pady=10)
