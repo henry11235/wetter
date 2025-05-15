@@ -1,7 +1,8 @@
 """
 Main entry point for the Wetter application.
 """
-
+import sys
+import os
 import customtkinter as ctk
 import customtkinter as ctk_image
 import requests
@@ -22,6 +23,10 @@ def update_background(canvas, root):
     root.bg_image = ImageTk.PhotoImage(resized)
     canvas.delete("all")
     canvas.create_image(0, 0, image=root.bg_image, anchor="nw")
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 def set_background_image(weather_code, root, canvas):
     image_map = {
@@ -35,7 +40,8 @@ def set_background_image(weather_code, root, canvas):
     image_path = image_map.get(weather_code)
     if not image_path:
         return
-    root.bg_image_raw = Image.open("src/wetter/assets/" + image_path)
+    image_path = resource_path("assets/" + image_path)
+    root.bg_image_raw = Image.open(image_path)
     update_background(canvas, root)
 
 def ort_zu_koordinaten(ort):
@@ -189,6 +195,7 @@ def create_favorite_section(master):
 def main():
     global root, ort_eingabe, ergebnis_label, vorhersage_label, canvas, favorite_buttons_frame, favoriten_manager, karten_label
     favoriten_manager = favoriten_manager()
+    favoriten_manager.lade_favoriten()
 
     ctk.set_appearance_mode("System")
     ctk.set_default_color_theme("blue")

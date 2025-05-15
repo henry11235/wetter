@@ -12,7 +12,8 @@ class favoriten_manager:
             try:
                 with open(self.dateipfad, "r") as f:
                     self.favoriten = json.load(f)
-            except:
+            except Exception as e:
+                print("Laden der Favoriten fehlgeschlagen:", e)
                 self.favoriten = []
 
     def speichere_favoriten(self):
