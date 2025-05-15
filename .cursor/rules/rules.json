@@ -1,0 +1,11 @@
+{
+    "name": "Run Wetter App after every change",
+    "trigger": "after_edit",
+    "actions": [
+      {
+        "type": "run_command",
+        "command": "poetry run python3 run.py"
+      }
+    ],
+    "description": "Automatically runs the Wetter application after every file change to catch and fix errors early."
+  }
