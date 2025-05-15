@@ -816,9 +816,9 @@
 		<data>
 		TwB32rbJhqZKuTkmMAJMsJdyseg=
 		</data>
-		<key>Resources/icon-windowed.icns</key>
+		<key>Resources/icon.icns</key>
 		<data>
-		eEHOuYpZLB0vKGVIWGZOh5rH8+o=
+		hjw/vaAmOI0dSViK4Fwh3M2fapA=
 		</data>
 		<key>Resources/numpy-2.2.5.dist-info/INSTALLER</key>
 		<data>
@@ -3363,11 +3363,11 @@
 			ea2Gv+p/BVesHiCAKJKrtEqWevFbkxWwA5zXXItyp3Y=
 			</data>
 		</dict>
-		<key>Resources/icon-windowed.icns</key>
+		<key>Resources/icon.icns</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			uQo7VuWRab4Phv4EEGmfQsyqFqDIXZgO8OtgaAMvCzY=
+			RXGmzrGjUFSqotPyeTyvXwHOvqfNlaLGWthMr6WYe2o=
 			</data>
 		</dict>
 		<key>Resources/lib-dynload</key>
