@@ -91,7 +91,7 @@ jobs:
       run: poetry run pyinstaller --windowed --name "Wetter" --add-data "assets:assets" --icon=icon.icns run.py
 
     - name: Upload macOS app as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Wetter-macOS
         path: dist/Wetter.app
