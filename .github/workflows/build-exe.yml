@@ -26,7 +26,7 @@ jobs:
         pyinstaller --noconsole --onefile run.py
 
     - name: Upload EXE
-      uses: actions/upload-artifact@v3.1.2
+      uses: actions/upload-artifact@v2
       with:
         name: wetterapp-exe
         path: dist/run.exe
