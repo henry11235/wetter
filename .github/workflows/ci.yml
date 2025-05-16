@@ -154,17 +154,11 @@ jobs:
         name: Wetter-Windows
         path: dist/run.exe
 
-    - name: Zip the exe for release
-      shell: powershell
-      run: |
-        cd dist
-        Compress-Archive -Path run.exe -DestinationPath Wetter-Windows.zip
-
-    - name: Upload Windows zip as artifact
+    - name: Upload Windows EXE as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Wetter-Windows-zip
-        path: dist/Wetter-Windows.zip
+        name: Wetter-Windows
+        path: dist/run.exe
 
   create-release:
     runs-on: ubuntu-latest
