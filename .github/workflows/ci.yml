@@ -149,13 +149,13 @@ jobs:
       run: poetry install --no-interaction
 
     - name: Build Windows EXE
-      run: poetry run pyinstaller --onefile --noconsole run.py
+      run: poetry run pyinstaller --onefile --noconsole --name Wetter run.py
 
     - name: Upload Windows EXE as artifact
       uses: actions/upload-artifact@v4
       with:
         name: Wetter-Windows
-        path: dist/run.exe
+        path: dist/Wetter.exe
 
   create-release:
     runs-on: ubuntu-latest
