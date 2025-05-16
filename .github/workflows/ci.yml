@@ -100,15 +100,11 @@ jobs:
         cd dist
         zip -r Wetter-macOS.zip Wetter.app
 
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v2
+    - name: Upload macOS zip as artifact
+      uses: actions/upload-artifact@v4
       with:
-        files: dist/Wetter-macOS.zip
-        name: Release ${{ github.ref_name }}
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: Wetter-macOS-zip
+        path: dist/Wetter-macOS.zip
 
   build-windows:
     runs-on: windows-latest
@@ -157,4 +153,45 @@ jobs:
       with:
         name: Wetter-Windows
         path: dist/run.exe
-        
+
+    - name: Zip the exe for release
+      run: |
+        cd dist
+        Compress-Archive -Path run.exe -DestinationPath Wetter-Windows.zip
+
+    - name: Upload Windows zip as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Wetter-Windows-zip
+        path: dist/Wetter-Windows.zip
+
+  create-release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build-macos, build-windows]
+    permissions:
+      contents: write
+    steps:
+    - name: Download macOS zip
+      uses: actions/download-artifact@v4
+      with:
+        name: Wetter-macOS-zip
+        path: macos-zip
+
+    - name: Download Windows zip
+      uses: actions/download-artifact@v4
+      with:
+        name: Wetter-Windows-zip
+        path: windows-zip
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          macos-zip/Wetter-macOS.zip
+          windows-zip/Wetter-Windows.zip
+        name: Release ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
