@@ -157,16 +157,11 @@ jobs:
         name: Wetter-Windows
         path: dist/run.exe
 
-    - name: Zip the exe for release
-      run: |
-        cd dist
-        Compress-Archive -Path run.exe -DestinationPath Wetter-Windows.zip
-
-    - name: Upload Windows zip as artifact
+    - name: Upload Windows executable as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Wetter-Windows-zip
-        path: dist/Wetter-Windows.zip
+        name: Wetter-Windows
+        path: dist/run.exe
 
   create-release:
     runs-on: ubuntu-latest
@@ -184,15 +179,15 @@ jobs:
     - name: Download Windows zip
       uses: actions/download-artifact@v4
       with:
-        name: Wetter-Windows-zip
-        path: windows-zip
+        name: Wetter-Windows
+        path: windows
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
         files: |
           macos-zip/Wetter-macOS.zip
-          windows-zip/Wetter-Windows.zip
+          windows/run.exe
         name: Release ${{ github.ref_name }}
         draft: false
         prerelease: false
