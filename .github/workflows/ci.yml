@@ -157,12 +157,6 @@ jobs:
         name: Wetter-Windows
         path: dist/run.exe
 
-    - name: Upload Windows executable as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: Wetter-Windows
-        path: dist/run.exe
-
   create-release:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
@@ -176,7 +170,7 @@ jobs:
         name: Wetter-macOS-zip
         path: macos-zip
 
-    - name: Download Windows zip
+    - name: Download Windows Executable
       uses: actions/download-artifact@v4
       with:
         name: Wetter-Windows
