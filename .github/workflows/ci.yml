@@ -108,6 +108,9 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
     if: startsWith(github.ref, 'refs/tags/v')
     needs: test
     permissions:
