@@ -140,22 +140,13 @@ jobs:
 
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      shell: bash
-      run: $POETRY_HOME/bin/poetry install --no-interaction --no-root
-      env:
-        POETRY_HOME: ${{ env.POETRY_VIRTUALENVS_PATH }}/../poetry
+      run: poetry install --no-interaction --no-root
 
     - name: Install project
-      shell: bash
-      run: $POETRY_HOME/bin/poetry install --no-interaction
-      env:
-        POETRY_HOME: ${{ env.POETRY_VIRTUALENVS_PATH }}/../poetry
+      run: poetry install --no-interaction
 
     - name: Build Windows EXE
-      shell: bash
-      run: $POETRY_HOME/bin/poetry run pyinstaller --onefile --noconsole run.py
-      env:
-        POETRY_HOME: ${{ env.POETRY_VIRTUALENVS_PATH }}/../poetry
+      run: poetry run pyinstaller --onefile --noconsole run.py
 
     - name: Upload Windows EXE as artifact
       uses: actions/upload-artifact@v4
