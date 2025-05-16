@@ -155,6 +155,7 @@ jobs:
         path: dist/run.exe
 
     - name: Zip the exe for release
+      shell: powershell
       run: |
         cd dist
         Compress-Archive -Path run.exe -DestinationPath Wetter-Windows.zip
