@@ -1,0 +1,31 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch  # Manuelles Auslösen möglich
+
+jobs:
+  build:
+    runs-on: windows-latest  # Windows Server zum Bauen
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+
+      - name: Build EXE
+        run: pyinstaller --onefile --noconsole run.py
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v3
+        with:
+          name: wetterapp-exe
+          path: dist/run.exe
