@@ -181,7 +181,7 @@ jobs:
       with:
         files: |
           macos-zip/Wetter-macOS.zip
-          windows/run.exe
+          windows/Wetter.exe
         name: Release ${{ github.ref_name }}
         draft: false
         prerelease: false
