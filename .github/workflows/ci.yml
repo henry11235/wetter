@@ -149,7 +149,7 @@ jobs:
       run: poetry install --no-interaction
 
     - name: Build Windows EXE
-      run: poetry run pyinstaller --onefile --noconsole --name Wetter run.py
+      run: poetry run pyinstaller --onefile --noconsole --name Wetter --add-data "assets;assets" run.py
 
     - name: Upload Windows EXE as artifact
       uses: actions/upload-artifact@v4
